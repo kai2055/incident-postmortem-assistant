@@ -1,0 +1,15 @@
+# Vector store (generator, not source)
+data/chroma/
+
+# Python
+__pycache__/
+*.pyc
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
