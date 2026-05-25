@@ -1,0 +1,9 @@
+chromadb
+langchain
+langchain-community
+ollama
+fastapi
+uvicorn
+ragas
+pandas
+pytest

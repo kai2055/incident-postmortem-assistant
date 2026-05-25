@@ -1,23 +1,33 @@
+# Corpus Documentation
 
-# Incident Post-Mortem Retrieval Assistant
+## Schema
 
-A three-layer ML reliability pipeline that retrieves, diagnoses, and evaluates past incident post-mortems to assist engineers during live outages.
+Each incident is stored as a Markdown file with YAML frontmatter and five body sections.
 
-## Architecture
-- **Layer 1: RAG Pipeline** – embeds and retrieves past incidents using local LLMs (Ollama) and ChromaDB.
-- **Layer 2: Diagnostic Agent** – multi-step reasoning that decomposes symptoms, performs parallel retrieval, and produces differential diagnoses.
-- **Layer 3: Evaluation Agent** – automated regression testing and metric tracking (hit rate, MRR, faithfulness) integrated into CI/CD.
+### YAML frontmatter fields
+- `id`: Unique identifier (e.g., `cloudflare-2025-11-18`)
+- `title`: Human-readable incident name
+- `company`: Company name
+- `date`: Incident date (YYYY-MM-DD)
+- `severity`: One of `critical`, `major`, `minor`
+- `duration_minutes`: Total outage duration in minutes
+- `affected_services`: List of affected service names
+- `root_cause_category`: One of `configuration-error`, `cascading-failure`, `credential-auth`, `network-bgp`, `database-storage`, `agent-ai`, `supply-chain`, `other`
 
-## Corpus
-25 curated public post-mortems from Cloudflare, Google Cloud, GitHub, GitLab, and emerging AI agent failures. See `corpus/README.md` for the schema and quality criteria.
+### Body sections
+1. **Summary** – one-paragraph description of what happened
+2. **Timeline** – bullet list of events with UTC timestamps
+3. **Root Cause** – detailed technical root cause
+4. **Resolution** – exact steps taken to fix
+5. **Prevention** – long-term fixes and lessons learned
 
-## Setup (WIP)
-1. Install dependencies: `pip install -r requirements.txt`
-2. Run ingestion: `python src/ingestion.py`
-3. Start API: `uvicorn src.api:app --reload`
+## Quality Gate – Completeness Score
 
-## Evaluation
-Metrics: retrieval hit rate, MRR, answer faithfulness, relevance. Baseline results will be recorded here.
+Before normalization, each incident is scored 0–5:
+- Clear timeline with timestamps: 1 point
+- Detailed root cause: 1 point
+- Resolution steps: 1 point
+- Impact quantification (users/services/duration): 1 point
+- Prevention / lessons learned: 1 point
 
-## License
-MIT
+Only incidents with score ≥ 3 are admitted to the corpus.
