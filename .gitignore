@@ -5,6 +5,7 @@ data/chroma/
 __pycache__/
 *.pyc
 .env
+.venv/
 
 # IDE
 .vscode/
