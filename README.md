@@ -8,7 +8,7 @@ A three-layer ML reliability pipeline that retrieves, diagnoses, and evaluates p
 - **Layer 3: Evaluation Agent** – automated regression testing and metric tracking (hit rate, MRR, faithfulness) integrated into CI/CD.
 
 ## Corpus
-25 curated public post-mortems from Cloudflare, Google Cloud, GitHub, GitLab, and emerging AI agent failures. See `corpus/README.md` for the schema and quality criteria.
+ A curated collection of public post-mortems from Cloudflare, Google Cloud, GitHub, GitLab. See `corpus/README.md` for the schema and quality criteria.
 
 ## Setup (WIP)
 1. Install dependencies: `pip install -r requirements.txt`
