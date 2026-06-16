@@ -1,16 +1,21 @@
-# Cloudflare R2 Incident – March 21, 2025
-
-| Field | Value |
-|-------|-------|
-| **id** | `cloudflare-r2-2025-03-21` |
-| **title** | "Credential rotation mis‑deployment causes 67‑minute global outage for R2 object storage" |
-| **company** | Cloudflare |
-| **date** | 2025-03-21 |
-| **severity** | critical |
-| **duration_minutes** | 67 |
-| **affected_services** | R2 Object Storage, Cache Reserve, Images, Log Delivery, Stream, Vectorize, Email Security, Key Transparency Auditor, Billing |
-| **root_cause_category** | human‑error |
-
+---
+id: cloudflare-r2-2025-03-21
+title: "Credential rotation mis-deployment causes 67-minute global outage for R2 object storage"
+company: Cloudflare
+date: 2025-03-21
+severity: critical
+duration_minutes: 67
+affected_services:
+  - R2 Object Storage
+  - Cache Reserve
+  - Images
+  - Log Delivery
+  - Stream
+  - Vectorize
+  - Email Security
+  - Key Transparency Auditor
+  - Billing
+root_cause_category: human-error
 ---
 
 ## Summary

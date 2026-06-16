@@ -11,7 +11,10 @@ Each incident is stored as a Markdown file with YAML frontmatter and five body s
 - `date`: Incident date (YYYY-MM-DD)
 - `severity`: One of `critical`, `major`, `minor`
 - `duration_minutes`: Time from **first observable customer impact** to **all services fully restored and confirmed operational**. Applied consistently across all incidents (not "time to main fix" or "restore copy duration").
-- `affected_services`: List of affected service names
+- `affected_services`: List of affected service names, in YAML block-list form:
+    affected_services:
+      - Service One
+      - Service Two
 - `root_cause_category`: One of `configuration-error`, `cascading-failure`, `credential-auth`, `network-bgp`, `database-storage`, `agent-ai`, `supply-chain`, `human-error`, `other`
 
 
