@@ -1,9 +1,9 @@
+#!/usr/bin/env python3
 """
-Chunking module
+Chunking module for the RAG pipeline.
 
-Splits documents into sematic chunks based on section headers,
+Splits documents into semantic chunks based on section headers,
 preserving metadata for traceability and filtering.
-
 """
 
 import re
@@ -13,35 +13,32 @@ from typing import List, Dict, Any, Tuple
 from src.ingestion import Document
 
 
-
 @dataclass
 class Chunk:
     """
     A semantic chunk of text with its metadata.
 
     Each chunk knows which document and section it came from,
-    enabling traceability and strutured filtering in ChromaDB
-    
+    enabling traceability and structured filtering in ChromaDB.
     """
     text: str
     metadata: Dict[str, Any] = field(default_factory=dict)
 
 
 def chunk_documents(
-        documents: List[Document],
-        max_chunk_size: int = 2000,        
+    documents: List[Document],
+    max_chunk_size: int = 2000,
 ) -> List[Chunk]:
     """
-    Split each document into sections and paragraphs, returing chunks.
+    Split each document into sections and paragraphs, returning chunks.
 
     Args:
-        documents: List of Document objects from ingestion
-        max_chunk_size: Maximum characters per chunk
-            Sections exceeding this are split on paragraph boundaries
+        documents: List of Document objects from ingestion.
+        max_chunk_size: Maximum characters per chunk.
+            Sections exceeding this are split on paragraph boundaries.
 
     Returns:
         List of Chunk objects, one per logical piece.
-    
     """
     chunks = []
 
@@ -49,7 +46,6 @@ def chunk_documents(
         sections = _split_into_sections(doc.text)
 
         for section_name, section_text in sections:
-            # Normalize section name for metadata
             section_meta = _normalize_section_name(section_name)
 
             if len(section_text) <= max_chunk_size:
@@ -64,13 +60,20 @@ def chunk_documents(
                 )
                 chunks.append(chunk)
             else:
-                # Split long section by paragraphs
-                paragraph_groups = _split_by_paragraphs(
-                    section_text, max_chunk_size
-                )
+                # Extract header and body
+                header, body = _extract_header_and_body(section_text)
+
+                # Calculate available space for body (reserve header + 2 newlines)
+                body_limit = max_chunk_size - len(header) - 2
+                if body_limit < 100:
+                    body_limit = 100  # Minimum reasonable chunk size
+
+                paragraph_groups = _split_body_by_paragraphs(body, body_limit)
+
                 for idx, group in enumerate(paragraph_groups):
+                    chunk_text = f"{header}\n\n{group}".strip()
                     chunk = Chunk(
-                        text=group.strip(),
+                        text=chunk_text,
                         metadata=_build_chunk_metadata(
                             doc.metadata,
                             section_meta,
@@ -79,7 +82,6 @@ def chunk_documents(
                         )
                     )
                     chunks.append(chunk)
-
 
     return chunks
 
@@ -90,15 +92,13 @@ def _split_into_sections(text: str) -> List[Tuple[str, str]]:
 
     Returns:
         List of (header_name, content_with_header) tuples.
-  
     """
     heading_pattern = re.compile(r"^(##\s+.+)$", re.MULTILINE)
     matches = list(heading_pattern.finditer(text))
 
-
     if not matches:
         return [("full_document", text.strip())]
-    
+
     sections = []
 
     for i, match in enumerate(matches):
@@ -106,39 +106,44 @@ def _split_into_sections(text: str) -> List[Tuple[str, str]]:
         start = match.start()
 
         if i == 0:
-            # Content before first heading (if any)
             intro = text[0:start].strip()
             if intro:
                 sections.append(("intro", intro))
 
-        # Content from this heading to the next heading (or end)
         if i + 1 < len(matches):
             next_start = matches[i + 1].start()
             content = text[start:next_start].strip()
         else:
             content = text[start:].strip()
 
-
         sections.append((header, content))
 
     return sections
 
 
-def _split_by_paragraphs(text: str, max_chunk_size: int) -> List[str]:
+def _extract_header_and_body(section_text: str) -> Tuple[str, str]:
     """
-    Split text into paragraph groups, each <= max_chunk_size.
-
-    Args:
-        text: Section text (with header included).
-        max_chunk_size: Maximum characters per chunk.
+    Extract the section header (## ...) and the body content.
 
     Returns:
-        List of text chunks, each <= max_chunk_size.
+        (header, body)
     """
-    paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
+    lines = section_text.split("\n")
+    header = lines[0] if lines and lines[0].strip().startswith("##") else "## Unknown"
+    body = "\n".join(lines[1:]).strip()
+    return header, body
+
+
+def _split_body_by_paragraphs(body: str, max_chunk_size: int) -> List[str]:
+    """
+    Split body content by paragraphs, each <= max_chunk_size.
+
+    Filters out separator-only chunks (---).
+    """
+    paragraphs = [p.strip() for p in body.split("\n\n") if p.strip() and p.strip() != "---"]
 
     if not paragraphs:
-        return [text]
+        return [body] if body.strip() else []
 
     chunks = []
     current_chunk = ""
@@ -157,32 +162,23 @@ def _split_by_paragraphs(text: str, max_chunk_size: int) -> List[str]:
     if current_chunk:
         chunks.append(current_chunk.strip())
 
-    # Filter out separator-only chunks
-    filtered = []
-    for chunk in chunks:
-        clean = chunk.strip()
-        if clean and clean != "---":
-            filtered.append(chunk)
-
-    return filtered
-
-
+    return chunks
 
 
 def _normalize_section_name(header: str) -> str:
+    """Normalize section header to lowercase with underscores."""
     name = header.replace("##", "").strip().lower()
     name = name.replace(" ", "_")
     return name
 
 
-
 def _build_chunk_metadata(
-        doc_metadata: Dict[str, Any],
-        section: str,
-        chunk_index: int,
-        total_chunks: int,
+    doc_metadata: Dict[str, Any],
+    section: str,
+    chunk_index: int,
+    total_chunks: int,
 ) -> Dict[str, Any]:
-    """Build metadata for a chunk from document metadata + chunking info"""
+    """Build metadata for a chunk from document metadata + chunking info."""
     return {
         "doc_id": doc_metadata.get("id"),
         "title": doc_metadata.get("title"),
@@ -194,8 +190,6 @@ def _build_chunk_metadata(
         "chunk_index": chunk_index,
         "total_chunks": total_chunks,
     }
-
-
 
 
 def main():
@@ -229,7 +223,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
