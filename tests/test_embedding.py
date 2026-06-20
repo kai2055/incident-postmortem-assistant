@@ -18,7 +18,7 @@ from src.embedding import (
 )
 
 CORPUS_PATH = Path(__file__).parent.parent / "corpus" / "raw"
-EXPECTED_CHUNKS = 24
+EXPECTED_CHUNKS = 39
 
 @pytest.fixture
 def temp_Chroma(monkeypatch):

@@ -11,9 +11,9 @@ CORPUS_PATH = Path(__file__).parent.parent / "corpus" / "raw"
 
 
 
-def test_returns_exactly_4_documents():
+def test_returns_exactly_all_documents():
     docs = load_documents(CORPUS_PATH)
-    assert len(docs) == 4
+    assert len(docs) == 7
 
 
 def test_all_elements_are_document_instances():

@@ -6,7 +6,7 @@ from src.chunking import chunk_documents, Chunk
 from src.ingestion import load_documents
 
 CORPUS_PATH = Path(__file__).parent.parent / "corpus" / "raw"
-EXPECTED_CHUNKS = 24
+EXPECTED_CHUNKS = 39
 
 
 
