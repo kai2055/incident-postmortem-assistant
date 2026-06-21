@@ -2,27 +2,25 @@
 """
 Embedding module for the RAG pipeline.
 
-Embed chunks using nomic-embed-text via Ollama and stores them in ChromaDB for retrieval
-
+Embeds text using nomic-embed-text via Ollama. Also contains
+orchestrators (index_chunks, retrieve) that coordinate between
+embedding and vectorstore layers
 """
 
-import os
 from pathlib import Path
-from typing import List, Tuple, Dict, Any, Optional
+from typing import List, Tuple, Any
 
-import chromadb
 import ollama
 
 from src.chunking import Chunk
+from src.vectorstore import store_chunks, search, CHROMA_COLLECTION
 
 
 # Configuration
 
-OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 EMBED_MODEL = "nomic-embed-text"
 VECTOR_DIM = 768
-CHROMA_PATH = Path("data/chromadb")
-CHROMA_COLLECTION = "incidents"
+
 
 
 # Embedding
@@ -67,71 +65,9 @@ def embed_chunks(chunks: List[Chunk]) -> List[Tuple[Chunk, List[float]]]:
     return results
 
 
-def _build_chunk_id(chunk: Chunk) -> str:
-    """Generate unique ID for a chunk using colon seperator"""
-    doc_id = chunk.metadata.get("doc_id", "unknown")
-    section = chunk.metadata.get("section", "unknown")
-    index = chunk.metadata.get("chunk_index", 0)
-    return f"{doc_id}:{section}:{index}"
-
-
-# Storage
 
 
 
-def get_chroma_client(persist_path: Optional[Path] = None) -> chromadb.PersistentClient:
-    """Get or create ChromaDB client"""
-    if persist_path is None:
-        persist_path = CHROMA_PATH
-    persist_path.mkdir(parents=True, exist_ok=True)
-    return chromadb.PersistentClient(path=str(persist_path))
-
-
-def store_chunks(
-        chunks_with_vectors: List[Tuple[Chunk, List[float]]],
-        collection_name: str = CHROMA_COLLECTION,
-) -> None:
-    """
-    Store embedded chunks in ChromaDB using upsert
-
-    Args:
-        chunks_with_vectors: List of (chunk, vector) pairs.
-        collection_name: Name of the ChromaDB collection
-
-
-    """
-
-    client = get_chroma_client()
-
-    collection = client.get_or_create_collection(
-        name=collection_name,
-        metadata={"hnsw:space": "cosine"},
-    )
-
-    ids = []
-    texts = []
-    vectors = []
-    metadatas = []
-
-    for chunk, vector in chunks_with_vectors:
-        metadata = dict(chunk.metadata)
-
-        # Convert date to string for ChromaDB
-        if "date" in metadata and not isinstance(metadata["date"], str):
-            metadata["date"] = metadata["date"].isoformat()
-
-
-        ids.append(_build_chunk_id(chunk))
-        texts.append(chunk.text)
-        vectors.append(vector)
-        metadatas.append(metadata)
-
-    collection.upsert(
-        ids=ids,
-        documents=texts,
-        embeddings=vectors,
-        metadatas=metadatas,
-    )
 
 
 
@@ -155,56 +91,44 @@ def index_chunks(
     store_chunks(chunks_with_vectors, collection_name)
 
 
-# --- Search (for testing only) ---
 
-def search_chunks(
+def retrieve(
     query: str,
     collection_name: str = CHROMA_COLLECTION,
     top_k: int = 5,
-    filter_metadata: Optional[Dict[str, Any]] = None,
-) -> List[Dict[str, Any]]:
+    filter_metadata: dict = None,
+) -> List[dict]:
     """
-    Search ChromaDB for chunks matching the query.
+    Retrieve relevant chunks for a query
+
+    Steps: 
+        1. Embed the query with "search_query:" prefix
+        2. Search ChromaDB with the query vector
 
     Args:
-        query: User question.
-        collection_name: Name of the ChromaDB collection.
-        top_k: Number of results to return.
-        filter_metadata: Optional filter (e.g., {"company": "Cloudflare"}).
+        query: User question
+        collection_name: Name of the ChromaDB collection
+        top_k: Number of results to return
+        filter_metadata: Optional filter (e.g, {"company": "Cloudflare})
 
     Returns:
-        List of results with ids, documents, metadatas, and distances.
+        List of results with ids, dcouments, metadata, and distances    
+    
     """
-    client = get_chroma_client()
-    collection = client.get_collection(collection_name)
-
     query_vector = embed_text(query, "search_query:")
+    return search(query_vector, collection_name, top_k, filter_metadata)
 
-    results = collection.query(
-        query_embeddings=[query_vector],
-        n_results=top_k,
-        where=filter_metadata,
-    )
 
-    # Reformat results
-    return [
-        {
-            "id": results["ids"][0][i],
-            "text": results["documents"][0][i],
-            "metadata": results["metadatas"][0][i],
-            "distance": results["distances"][0][i],
-        }
-        for i in range(len(results["ids"][0]))
-    ]
+
+
 
 
 # --- Main ---
 
 def main():
     """Test the embedding module."""
-    from pathlib import Path
-    from .ingestion import load_documents
-    from .chunking import chunk_documents
+    from src.ingestion import load_documents
+    from src.chunking import chunk_documents
 
     corpus_path = Path("corpus/raw")
     print(f"Loading documents from: {corpus_path.absolute()}")
@@ -218,8 +142,9 @@ def main():
     print("Indexing...")
     index_chunks(chunks)
 
-    print("Testing search...")
-    results = search_chunks("What caused the Cloudflare R2 outage?", top_k=3)
+    print("Testing retrieval")
+    results = retrieve("What caused the Cloudflare R2 outage?", top_k=3)
+    
     for result in results:
         print(f"  [{result['id']}] distance={result['distance']:.4f}")
         print(f"      {result['text'][:100].replace(chr(10), ' ')}...")

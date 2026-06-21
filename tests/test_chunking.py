@@ -6,7 +6,7 @@ from src.chunking import chunk_documents, Chunk
 from src.ingestion import load_documents
 
 CORPUS_PATH = Path(__file__).parent.parent / "corpus" / "raw"
-EXPECTED_CHUNKS = 39
+
 
 
 
@@ -65,10 +65,10 @@ def test_doc_id_matches_real_document():
         
 
 
-def test_total_chunks_matches_expected():
+def test_total_chunks_matches_expected(corpus_path, expected_chunks):
     docs = load_documents(CORPUS_PATH)
     chunks = chunk_documents(docs)
-    assert len(chunks) == EXPECTED_CHUNKS, f"Expected {EXPECTED_CHUNKS}, got {len(chunks)}"
+    assert len(chunks) == expected_chunks, f"Expected {expected_chunks}, got {len(chunks)}"
 
 def test_section_is_allowed_value():
     """Section metadata is one of the allowed section names"""
