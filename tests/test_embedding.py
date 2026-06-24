@@ -1,4 +1,6 @@
 
+from unittest.mock import patch
+
 
 
 from src.ingestion import load_documents
@@ -66,4 +68,20 @@ def test_retrieve_returns_cosine_distance(indexed_chunks):
     for result in results:
         assert "distance" in result
         assert 0 <= result["distance"] <= 2
+
+
+def test_retrieve_filters_by_threshold():
+    with patch("src.embedding.embed_text") as mock_embed, \
+         patch("src.embedding.search") as mock_search:
+        
+        mock_embed.return_value = [0.0] * 768
+        mock_search.return_value = [
+            {"id": "a", "text": "close", "metadata": {}, "distance": 0.2},
+            {"id": "b", "text": "far", "metadata": {}, "distance": 1.5},
+        ]
+
+        results = retrieve("query", threshold=1.0)
+
+    assert len(results) == 1
+    assert results[0]["id"] == "a"
         

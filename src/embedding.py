@@ -20,6 +20,7 @@ from src.vectorstore import store_chunks, search, CHROMA_COLLECTION
 
 EMBED_MODEL = "nomic-embed-text"
 VECTOR_DIM = 768
+RELEVANCE_THRESHOLD = 1.0 # loose placeholder; Layer 3 evaluation will tune this
 
 
 
@@ -97,6 +98,7 @@ def retrieve(
     collection_name: str = CHROMA_COLLECTION,
     top_k: int = 5,
     filter_metadata: dict = None,
+    threshold: float = RELEVANCE_THRESHOLD,
 ) -> List[dict]:
     """
     Retrieve relevant chunks for a query
@@ -104,19 +106,27 @@ def retrieve(
     Steps: 
         1. Embed the query with "search_query:" prefix
         2. Search ChromaDB with the query vector
+        3. Drop results whose distance is above the threshold (too far = irrelevant)
+
 
     Args:
         query: User question
         collection_name: Name of the ChromaDB collection
         top_k: Number of results to return
         filter_metadata: Optional filter (e.g, {"company": "Cloudflare})
+        threshold: Max cosine distant to count as relevant. Smaller = stricter
 
     Returns:
-        List of results with ids, dcouments, metadata, and distances    
+        List of results within the threshold. May be empty if nothing is close enough.
     
     """
     query_vector = embed_text(query, "search_query:")
-    return search(query_vector, collection_name, top_k, filter_metadata)
+    results = search(query_vector, collection_name, top_k, filter_metadata)
+
+    # Keep only results close enough to be relevant
+    relevant = [ r for r in results if r["distance"] <= threshold]
+    
+    return relevant
 
 
 

@@ -4,6 +4,7 @@ from src.generation import(
     _build_sources,
     generate_answer,
     answer_query,
+    NO_MATCH_MESSAGE,
 )
 
 
@@ -90,3 +91,17 @@ def test_answer_query_shape():
     assert "sources" in result
     assert isinstance(result["sources"], list)
     mock_retrieve.assert_called_once()
+
+
+def test_answer_query_no_match_returns_message():
+    with patch("src.generation.retrieve") as mock_retrieve, \
+         patch("src.generation.generate_answer") as mock_gen:
+        
+        mock_retrieve.return_value = []
+
+        result = answer_query("something unrelated to any incident")
+
+    assert result["answer"] == NO_MATCH_MESSAGE
+    assert result["sources"] == []
+    mock_gen.assert_not_called()    # the model was never invoked
+

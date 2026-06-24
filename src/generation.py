@@ -14,10 +14,14 @@ import ollama
 from src.embedding import retrieve
 
 
+NO_MATCH_MESSAGE = "I don't have a matching incident in the sources."
+
+
 
 # config
 
 GEN_MODEL = "qwen3:8b"
+
 
 
 # helpers
@@ -156,6 +160,7 @@ def answer_query(
 ) -> Dict[str, Any]:
     """
     Full RAG orchestrator: retrieve, then generate.
+    If nothing relevant is retrieved, skip the model and return the no-match message.
 
     Args:
         question: User's question
@@ -168,7 +173,13 @@ def answer_query(
     # Retrieve relevant chunks
     results = retrieve(question, top_k=top_k, filter_metadata=filter_metadata)
 
-    # Generate answer from results
+    # Nothing close enough - no wastage of model call, return the fixed message
+    if not results:
+        return {
+            "answer": NO_MATCH_MESSAGE,
+            "sources": [],
+        }
+    
     return generate_answer(question, results)
 
 
