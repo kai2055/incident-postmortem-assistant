@@ -17,7 +17,7 @@ def corpus_path():
 
 @pytest.fixture
 def expected_chunks():
-    return 39
+    return 68
 
 
 
