@@ -31,17 +31,9 @@ def get_chroma_client(persist_path: Optional[Path] = None) -> chromadb.Persisten
 # Storage
 
 def store_chunks(
-        chunks_with_vectors: List[Tuple[Any, List[float]]],
-        collection_name: str = CHROMA_COLLECTION,
+    chunks_with_vectors: List[Tuple[Any, List[float]]],
+    collection_name: str = CHROMA_COLLECTION,
 ) -> None:
-    """
-    Store embedded chunks in ChromaDB using upsert.
-
-    Args: 
-        chunks_with_vectors: List of (chunk, vector) pairs.
-        collection_name: Name of the ChromaDB collection.
-
-    """
     client = get_chroma_client()
 
     collection = client.get_or_create_collection(
@@ -56,12 +48,19 @@ def store_chunks(
     metadatas = []
 
     for chunk, vector in chunks_with_vectors:
-        # ChromaDB-compatible metadata
         metadata = dict(chunk.metadata)
 
-        # date to string for ChromaDB
-        if "date" in metadata and not isinstance(metadata["date"], str):
-            metadata["date"] = metadata["date"].isoformat()
+        # Convert date to string for ChromaDB
+        if "date" in metadata:
+            date_val = metadata["date"]
+            if date_val is None:
+                metadata["date"] = "unknown"
+            elif isinstance(date_val, str):
+                pass  # Already a string
+            elif hasattr(date_val, 'isoformat'):
+                metadata["date"] = date_val.isoformat()
+            else:
+                metadata["date"] = str(date_val)
 
         ids.append(_build_chunk_id(chunk))
         texts.append(chunk.text)
