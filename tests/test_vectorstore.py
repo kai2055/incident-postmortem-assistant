@@ -3,7 +3,7 @@
 from src.ingestion import load_documents
 from src.chunking import chunk_documents
 from src.embedding import embed_chunks, embed_text, index_chunks
-from src.vectorstore import store_chunks, search, get_chroma_client, CHROMA_COLLECTION
+from src.vectorstore import store_chunks, search, get_chroma_client,to_chroma_where, CHROMA_COLLECTION
 
 
 def test_store_and_search(temp_chroma, corpus_path):
@@ -64,3 +64,22 @@ def test_index_chunks_creates_collection(indexed_chunks):
     client = get_chroma_client()
     names = [c.name for c in client.list_collections()]
     assert CHROMA_COLLECTION in names
+
+
+def test_to_chroma_where_empty_returns_none():
+    assert to_chroma_where({}) is None
+    assert to_chroma_where(None) is None
+
+def test_to_chroma_where_single_key_passes_through():
+    assert to_chroma_where({"company": "Cloudflare"}) == {"company": "Cloudflare"}
+
+def test_t0_chroma_where_multi_key_wraps_in_and():
+    result = to_chroma_where(
+        {"company": "Cloudflare", "root_cause_category": "configuration-error"}
+
+    )
+    assert "$and in result"
+    assert {"company": "Cloudflare"} in result["$and"]
+    assert {"root_cause_category": "configuration-error"} in result["$and"]
+    assert len(result["$and"]) == 2
+    
