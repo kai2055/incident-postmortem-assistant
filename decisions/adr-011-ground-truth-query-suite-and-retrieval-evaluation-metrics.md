@@ -71,3 +71,43 @@ The metric pairing of hit rate + MRR is standard and defensible: hit rate says "
 - A threshold sweep over the query suite is intended to find the cutoff that maximizes decline rate on no-match queries without degrading hit rate on medium and hard queries, replacing the hardcoded `RELEVANCE_THRESHOLD = 1.0` from ADR-008 with an evidence-based value. This sweep is not yet built or run.
 - The suite must be updated if the corpus changes — new incidents may require new discrimination queries or may shift existing expected answers if within-category competition changes.
 
+
+---
+
+**Amendment (2026-06-28):**
+
+After implementing `src/evaluation.py` and its test suite, three points
+diverged from or extended the original decision. The body above is left
+intact; these corrections describe what was actually built.
+
+1. **No-match decline is scored at the retrieval layer, not the full
+   `answer_query()` path.** The original "Options considered (no-match
+   handling)" selected testing the full generate path. The implementation
+   instead scores decline in `score_decline_query` as
+   `declined = (len(retrieve(...)) == 0)` — i.e. whether the distance
+   threshold filtered everything out, measured at retrieval. This is the
+   correct layer for the upcoming threshold sweep, since the threshold is
+   exactly what that path exercises. The generation-path decline rule (the
+   prompt-based "I don't have a matching incident" response) remains tested
+   separately in `test_generation.py`. Decline is therefore measured at two
+   layers by two different tests, not by one combined path.
+
+2. **`data/eval/baseline.json` is committed to version control, not
+   gitignored.** This is a deliberate exception to the project convention
+   that generated artifacts (e.g. the ChromaDB store) are gitignored. The
+   baseline is documented evidence: committing it makes metric changes
+   diffable across commits and across threshold-tuning runs, and gives a
+   stable reference an interviewer can be pointed at. The file carries
+   `run_metadata` (timestamp, top_k, threshold) so it is self-describing.
+
+3. **Metric logic is implemented as pure functions, separated from the
+   impure scoring shell.** `hit_at_k`, `reciprocal_rank`, `split_chunk_id`,
+   and `to_chroma_where` take plain inputs and return outputs computed only
+   from those inputs — no Ollama, no ChromaDB. The scoring functions
+   (`score_retrieval_query`, `score_decline_query`, `score_filter_query`)
+   are the impure shell that calls `retrieve()`. This pure-core / impure-
+   shell split lets the metric math be unit-tested in milliseconds without
+   the model, which is a prerequisite for the fast CI test tier (the slow
+   ~15-minute integration suite cannot gate every push). Tests for the pure
+   functions live alongside the fast suite; `to_chroma_where`'s tests live
+   in `test_vectorstore.py` next to the code they cover.
