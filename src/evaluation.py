@@ -129,13 +129,20 @@ def score_decline_query(query_entry: dict, top_k: int, threshold: float) -> dict
 
 
 def score_filter_query(query_entry: dict, top_k: int, threshold: float) -> dict:
-    """Score a filter with set precision / recall"""
+    """
+    Score a filter with set precision / recall
+
+    Filter queries get the full metadata matched shelf (threshold=None)
+    because the question is "which documents match these metadata criteria,"
+    not "which chunks are semantically close to this query"
+    
+    """
     filter_metadata = query_entry.get("filter") or None
     results = retrieve(
         query_entry["query_intent"],
         top_k=top_k,
         filter_metadata=filter_metadata,
-        threshold=threshold,
+        threshold=None, # No distance cutoff - return all metadata-matched results
     )
     returned = set(result_doc_ids(results))
     expected = set(query_entry.get("expected_doc_ids", []))

@@ -1,18 +1,18 @@
 {
   "run_metadata": {
-    "timestamp": "2026-06-27T16:32:04.028075+00:00",
+    "timestamp": "2026-06-28T23:19:28.133047+00:00",
     "top_k": 5,
-    "threshold": 1.0
+    "threshold": 0.3
   },
   "results": {
     "overall": {
       "top_k": 5,
-      "threshold": 1.0,
+      "threshold": 0.3,
       "total_queries": 31,
       "hit_rate": 1.0,
       "mrr": 0.9492753623188406,
       "section_accuracy": 0.43478260869565216,
-      "decline_rate": 0.0,
+      "decline_rate": 0.6,
       "filter_precision": 1.0,
       "filter_recall": 1.0,
       "filter_exact_match_rate": 1.0
@@ -58,10 +58,7 @@
         "expected_doc_id": "crowdstrike-2024-07-19",
         "retrieved_doc_ids": [
           "crowdstrike-2024-07-19",
-          "cloudflare-thanksgiving-2023-11-23",
-          "cloudflare-2025-11-18",
-          "cloudflare-waf-2019-07-02",
-          "cloudflare-waf-2019-07-02"
+          "cloudflare-thanksgiving-2023-11-23"
         ],
         "hit": true,
         "reciprocal_rank": 1.0,
@@ -105,10 +102,6 @@
         "query": "What was the TanStack npm incident about?",
         "expected_doc_id": "tanstack-npm-2026-05-11",
         "retrieved_doc_ids": [
-          "tanstack-npm-2026-05-11",
-          "tanstack-npm-2026-05-11",
-          "tanstack-npm-2026-05-11",
-          "tanstack-npm-2026-05-11",
           "tanstack-npm-2026-05-11"
         ],
         "hit": true,
@@ -137,11 +130,7 @@
         "query": "All our Windows servers blue-screened at once after a security software update went out.",
         "expected_doc_id": "crowdstrike-2024-07-19",
         "retrieved_doc_ids": [
-          "crowdstrike-2024-07-19",
-          "cloudflare-2025-11-18",
-          "cloudflare-waf-2019-07-02",
-          "cloudflare-thanksgiving-2023-11-23",
-          "tanstack-npm-2026-05-11"
+          "crowdstrike-2024-07-19"
         ],
         "hit": true,
         "reciprocal_rank": 1.0,
@@ -300,7 +289,6 @@
           "tanstack-npm-2026-05-11",
           "tanstack-npm-2026-05-11",
           "tanstack-npm-2026-05-11",
-          "tanstack-npm-2026-05-11",
           "tanstack-npm-2026-05-11"
         ],
         "hit": true,
@@ -409,27 +397,15 @@
         "mode": "decline",
         "difficulty": "no-match",
         "query": "Kubernetes cluster autoscaling failure caused pod eviction cascade across three namespaces.",
-        "declined": false,
-        "leaked_doc_ids": [
-          "cloudflare-2025-11-18",
-          "roblox-2021-10-28",
-          "roblox-2021-10-28",
-          "aws-s3-2017-02-28",
-          "cloudflare-control-plane-2023-11-02"
-        ]
+        "declined": true,
+        "leaked_doc_ids": []
       },
       {
         "mode": "decline",
         "difficulty": "no-match",
         "query": "weather in Paris today",
-        "declined": false,
-        "leaked_doc_ids": [
-          "cloudflare-waf-2019-07-02",
-          "cloudflare-control-plane-2023-11-02",
-          "cloudflare-control-plane-2023-11-02",
-          "cloudflare-control-plane-2023-11-02",
-          "cloudflare-r2-2025-03-21"
-        ]
+        "declined": true,
+        "leaked_doc_ids": []
       },
       {
         "mode": "decline",
@@ -452,23 +428,15 @@
         "leaked_doc_ids": [
           "github-auth-2026-02-17",
           "github-auth-2026-02-17",
-          "cloudflare-thanksgiving-2023-11-23",
-          "cloudflare-waf-2019-07-02",
-          "cloudflare-2025-11-18"
+          "cloudflare-thanksgiving-2023-11-23"
         ]
       },
       {
         "mode": "decline",
         "difficulty": "no-match",
         "query": "Container image registry was compromised through a malicious base image from an upstream vendor.",
-        "declined": false,
-        "leaked_doc_ids": [
-          "cloudflare-thanksgiving-2023-11-23",
-          "cloudflare-2025-11-18",
-          "cloudflare-bgp-2019-06-24",
-          "cloudflare-r2-2025-03-21",
-          "cloudflare-thanksgiving-2023-11-23"
-        ]
+        "declined": true,
+        "leaked_doc_ids": []
       }
     ],
     "filter_results": [
