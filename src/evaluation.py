@@ -208,19 +208,19 @@ def evaluate_suite(
         overall["filter_recall"] = statistics.mean(r["recall"] for r in filt)
         overall["filter_exact_match_rate"] = sum(r["exact_match"] for r in filt) / len(filt)
 
-        per_difficulty = {}
-        for diff in ("easy", "medium", "hard"):
-            rows = [r for r in retrieval if r["difficulty"] == diff]
-            if not rows:
-                continue
-            hits = [r for r in rows if r["hit"]]
-            per_difficulty[diff] = {
-                "count": len(rows),
-                "hit_rate": len(hits) / len(rows),
-                "mrr": statistics.mean(r["reciprocal_rank"] for r in rows),
-            }
+    per_difficulty = {}
+    for diff in ("easy", "medium", "hard"):
+        rows = [r for r in retrieval if r["difficulty"] == diff]
+        if not rows:
+            continue
+        hits = [r for r in rows if r["hit"]]
+        per_difficulty[diff] = {
+            "count": len(rows),
+            "hit_rate": len(hits) / len(rows),
+            "mrr": statistics.mean(r["reciprocal_rank"] for r in rows),
+        }
 
-        return {
+    return {
             "overall": overall,
             "per_difficulty": per_difficulty,
             "retrieval_results": retrieval,
