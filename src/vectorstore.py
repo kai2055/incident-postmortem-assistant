@@ -75,6 +75,14 @@ def store_chunks(
     )
 
 
+def to_chroma_where(filters: dict) -> dict | None:
+    if not filters:
+        return None
+    if len(filters) == 1:
+        return filters
+    return {"$and": [{k: v} for k, v in filters.items()]}
+
+
 # Search
 
 def search(
@@ -103,7 +111,7 @@ def search(
     results = collection.query(
         query_embeddings=[query_vector],
         n_results=top_k,
-        where=filter_metadata,
+        where=to_chroma_where(filter_metadata,)
     )
 
     return [
