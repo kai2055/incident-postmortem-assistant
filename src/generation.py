@@ -137,13 +137,8 @@ def generate_answer(question: str, results: List[Dict[str, Any]]) -> Dict[str, A
     # Build prompt
     prompt = _build_prompt(question, context_block)
 
-    # Call Ollama
-    response = ollama.generate(
-        model=GEN_MODEL,
-        prompt=prompt,
-    )
-
-    answer = response.get("response", "")
+    # Shared LLM caller
+    answer = call_llm(prompt)
 
     return {
         "answer": answer,
@@ -181,6 +176,15 @@ def answer_query(
         }
     
     return generate_answer(question, results)
+
+def call_llm(prompt: str, model: str = GEN_MODEL) -> str:
+    """
+    Send a prompt to the model and return the text response.
+    This is the single point of contact with Ollama.
+    
+    """
+    response = ollama.generate(model=model, prompt=prompt)
+    return response.get("response", "")
 
 
 # Main
