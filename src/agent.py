@@ -1,4 +1,11 @@
 from typing import TypedDict
+import re
+
+
+
+from src.generation import call_llm
+from src.embedding import retrieve # Layer 1 retriever, calibrated to 0.30 threshold
+
 
 
 
@@ -9,6 +16,8 @@ class DiagnosticState(TypedDict):
     findings: str
     iterations: int
     diagnosis:str
+    sufficient: bool
+    gap_reason: str
 
 
 
@@ -20,4 +29,157 @@ def create_state(original_query: str) -> DiagnosticState:
         "findings": "",
         "iterations": 0,
         "diagnosis": "",
+        "sufficient": False,
+        "gap_reason": "",
     }
+
+
+
+def decompose_node(state: DiagnosticState) -> dict:
+    """
+    Break the incident description into distinct symptoms.
+
+    Extracts only symptoms explicitly stated in the query.
+    No inference, no addition - what the engineer saw, not what 
+    might be happenning
+    
+    
+    """
+
+    query = state["original_query"]
+
+    prompt = f"""You are a diagnostic assistant. Your job is to read an engineer's incident
+    description and extract only the symptoms they explicitly report
+
+    ## Rules
+
+    1. **Only what's stated.** Extract symptoms the engineer actually describes.
+    Do not infer causes, do not add symptoms that aren't mentioned, do not interpret.
+
+    2. **One symptom per line.** Each symptom is a single line of plain text.
+    No numbering, no bullets, no preamble, no conclusion.
+
+    3. **Symptoms only, not causes.** "Database CPU spiked" is a symptom. 
+    "Database CPU spiked because of a bad query" is interpretation - drop the
+    "because" part.
+
+    4. **If the description is vague, extract what you can.**
+    A single vague symptom is better than inventing specifics.
+
+
+    ## Incident Description
+
+    {query}
+
+
+    ## Symptoms
+
+
+    """
+    raw_response = call_llm(prompt)
+
+    # Strip think tokens if prsent - qwen3 sometimes emits them
+    cleaned = re.sub(r"<think>.*?</think>", "", raw_response, flags=re.DOTALL)
+
+    # Parse: split on newlines, strip whitespace, drop empty lines
+
+    symptoms = [line.strip() for line in cleaned.split("\n") if line.strip()]
+
+    return {"symptoms": symptoms}
+
+
+
+def retrieve_node(state: DiagnosticState) -> dict: 
+    """
+    Retrieve past incidents for each decomposed symptom.
+
+    Calls the calibrated Layer 1 retriever per symptom. Empty results are preserved
+    as [] - they are the signal the sufficiency check reads later
+    
+    """
+    symptoms = state["symptoms"]
+    retrieved:dict[str, list[dict]] = {}
+
+    for symptom in symptoms:
+        results = retrieve(symptom, top_k=3)    # modest per-symptom; cross refrence handles multiple symptoms
+        retrieved[symptom] = results  # [] is meaningful: "no evidence for this symptom"
+
+    # NOTE: This builds a fresh dict each pass. When the Loop edges are wired, 
+    #   retrieved will need a LangGraph reducer (Annotated) so that gap-directed 
+    #   re-retrievals add to rather than overwrite prior results
+    return {"retrieved": retrieved}
+
+
+
+def assess_node(state: DiagnosticState) -> dict:
+    """
+    Cross-refrence retrieved incidents and judge sufficiency against state.
+
+    Two jobs, kept seperate:
+        - Job B (mechanical floor): every symptom must have non-empty evidence.
+            NO LLM. Un-hallucinatable
+        - Job A (LLM): ground cross-refrence prose - which symptoms converge on the same incidents,
+            which is cause vs effect. Always runs so findings is never empty into a capped-final Diagnose
+    """
+    symptoms = state["symptoms"]
+    retrieved = state["retrieved"]
+
+    # Job B: mechanical floor
+    uncovered: list[str] = []
+    for symptom in symptoms:
+        if not retrieved.get(symptom):  # catches [] and missing key
+            uncovered.append(symptom)
+
+    if uncovered:
+        sufficient = False
+        gap_reason = f"No evidence for: {','.join(uncovered)}"
+    else:
+        sufficient = True
+        gap_reason = ""
+
+    # Job A: LLM cross-refrence
+    # Grounded prompt: symptom -> incidents actually retrieved
+    evidence_lines: list[str] = []
+    for symptom in symptoms:
+        hits = retrieved.get(symptom, [])
+        if hits:
+            incident_summaries = []
+            for h in hits:
+                # Minimal readable summary from the chunk dict
+                doc_id = h.get("id", "unknown")
+                distance = h.get("distance", "N/A")
+                text_preview = h.get("text", "")[:120].replace("\n", " ")
+                incident_summaries.append(
+                    f'  - {doc_id} (dist {distance}): "{text_preview}..."'
+                )
+            evidence_lines.append(f"Symptom: {symptom}\n" + "\n".join(incident_summaries))
+        else:
+            evidence_lines.append(f"Symptom: {symptom}\n (no incidents retrieved)")    
+
+    evidence_block = "\n\n".join(evidence_lines)
+
+    prompt = f"""You are a diagnostic assistant reviewing evidence retrieved for an ongoing incident.
+
+
+    ## Rules
+    1. **Grounded only.** Reason only about the incidents listed below. Do not invent incidents or draw on general knowledge of outages.
+    2. **Cross-refrence.** For each symptom, note which past incident(s) match. Then ask: do multiple symptoms point at the same underlying
+        incident? If so, which symptom is likely the root cause and which are downstream effects?
+    3. **Be concise.** A short paragraph of finfings is enough. No preamble, no conclusion
+
+    ## Original Incident Description
+    {state['original_query']}
+
+    ## Retrieved Evidence Per Symptom
+    {evidence_block}
+
+
+    ## Findings
+
+"""  
+    
+    raw_findings = call_llm(prompt)
+    findings = re.sub(r"<think>.*?</think>", "", raw_findings, flags=re.DOTALL).strip()
+
+    return {"findings": findings, "sufficient": sufficient, "gap_reason":gap_reason}
+
