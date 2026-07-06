@@ -1,21 +1,30 @@
-from typing import TypedDict
+from typing import TypedDict, Annotated
 import re
+import operator
 
 
 
+from langgraph.graph import StateGraph, START, END
 from src.generation import call_llm
 from src.embedding import retrieve # Layer 1 retriever, calibrated to 0.30 threshold
 
 
 
 
+def merge_retrieved(old: dict, new: dict) -> dict:
+    """
+    Reducer: merge per-loop retrieval results. Latest-wins  per symptom-
+    a gap-directed re-retrieve fills the hole rather than stacking history
+    """
+    return {**old, **new}
+
 class DiagnosticState(TypedDict):
     original_query: str
     symptoms: list[str]
-    retrieved: dict[str, list[dict]]  #symptom -> list of incident dicts
+    retrieved: Annotated[dict[str, list[dict]], merge_retrieved]  #symptom -> list of incident dicts
     findings: str
-    iterations: int
-    diagnosis:str
+    iterations: Annotated[int, operator.add]
+    diagnosis:list[dict]
     sufficient: bool
     gap_reason: str
 
@@ -28,7 +37,7 @@ def create_state(original_query: str) -> DiagnosticState:
         "retrieved": {},
         "findings": "",
         "iterations": 0,
-        "diagnosis": "",
+        "diagnosis": [],
         "sufficient": False,
         "gap_reason": "",
     }
@@ -107,7 +116,7 @@ def retrieve_node(state: DiagnosticState) -> dict:
     # NOTE: This builds a fresh dict each pass. When the Loop edges are wired, 
     #   retrieved will need a LangGraph reducer (Annotated) so that gap-directed 
     #   re-retrievals add to rather than overwrite prior results
-    return {"retrieved": retrieved}
+    return {"retrieved": retrieved, "iterations": 1}
 
 
 
@@ -182,4 +191,144 @@ def assess_node(state: DiagnosticState) -> dict:
     findings = re.sub(r"<think>.*?</think>", "", raw_findings, flags=re.DOTALL).strip()
 
     return {"findings": findings, "sufficient": sufficient, "gap_reason":gap_reason}
+
+
+
+
+def diagnose_node(state: DiagnosticState) -> dict:
+    """
+    Produce a grounded, ranked differential diagnosis.
+
+    Every candidate cause must trace to a real retrieved incident.
+    Confidence comes from evidence convergence, not the model's gut feeling.
+    """
+    findings = state["findings"]
+    retrieved = state["retrieved"]
+
+    # Building a set of valid incident IDs actually retrieved
+    valid_ids = set()
+    for hits in retrieved.values():
+        for h in hits:
+            if doc_id := h.get("id"):
+                valid_ids.add(doc_id)
+
+    # Early exit: no real evidence -> should not ask the model to hallucinate
+    if not valid_ids:
+        return {"diagnosis": []}
+    
+
+    evidence_lines: list[str] = []
+    for symptom, hits in retrieved.items():
+        if hits:
+            doc_ids = [h.get("id", "unknown") for h in hits]
+            evidence_lines.append(f"    {symptom}: {', '.join(doc_ids)}")
+    evidence_block = "\n".join(evidence_lines) if evidence_lines else " (no evidence retrieved)"
+
+    prompt = f"""You are a diagnostic assistant producing a final ranked differential diagnosis.
+
+
+    ## Rules
+    1. ***Grounded only.** Every candidate root cause must be backed by a specific retrieved incident listed below. Do not 
+    invent causes or draw on general knowledge.
+    2. **Rank by evidence convergence.** A cause supported by multiple symptoms is higher confidence than one supported by a single symptom.
+    Confidence must reflect evidence strength, not your personal certainity.
+    3. **One candidate per line.** Format each as: CAUSE | EVIDENCE | CONFIDENCE
+        - CAUSE: short description of the root cause candidate
+        - EVIDENCE: the incident ID(s) that support it
+        - CONFIDENCE: high / medium / low (based on how many symptoms converge)
+    4. **No preamble, no conclusion.** Output only the ranked lines.
+
+
+    ## Findings from Cross-Refrence
+    {findings}
+
+    ## Available Retrieved Evidence
+    {evidence_block}
+
+    ## Ranked Differential Diagnosis
+
+        """
+    raw_response = call_llm(prompt)
+    cleaned = re.sub(r"<think>.*?</think>", "", raw_response, flags=re.DOTALL)
+
+    diagnosis: list[dict] = []
+    for line in cleaned.split("\n"):
+        line = line.strip()
+        if not line:
+            continue
+        # Skip header echo — model sometimes repeats the format instruction
+        if line.replace(" ", "").upper() == "CAUSE|EVIDENCE|CONFIDENCE":
+            continue
+        parts = [p.strip() for p in line.split("|")]
+        if len(parts) >= 3:
+            diagnosis.append({
+                "cause": parts[0],
+                "evidence": parts[1],
+                "confidence": parts[2].lower(),
+            })
+        elif len(parts) == 2:
+            diagnosis.append({
+                "cause": parts[0],
+                "evidence": parts[1],
+                "confidence": "unknown",
+            })
+        elif len(parts) == 1:
+            diagnosis.append({
+                "cause": parts[0],
+                "evidence": "",
+                "confidence": "unknown",
+            })
+
+    # Hardened grounding: evidence must cite at least one real retrieved ID
+    grounded: list[dict] = []
+    for d in diagnosis:
+        
+        cited = {x.strip() for x in d["evidence"].replace("[", "").replace("]", "").split(",") if x.strip()}
+        if cited & valid_ids:  
+            grounded.append(d)
+        # else: hallucinated evidence, drop it
+
+    return {"diagnosis": grounded}
+    
+
+
+MAX_ITERATIONS = 3
+
+def route_after_assess(state: DiagnosticState) -> str:
+    """
+    Hybrid termination: sufficient OR capped -> diagnose, else loop back
+    """
+    if state["sufficient"] or state["iterations"] >= MAX_ITERATIONS:
+        return "diagnose"
+    return "retrieve"
+
+
+def build_diagnostic_graph():
+    """
+    Assemble the four nodes into LangGraph with the conditional loop
+    """
+    builder = StateGraph(DiagnosticState)
+
+    builder.add_node("decompose", decompose_node)
+    builder.add_node("retrieve", retrieve_node)
+    builder.add_node("assess", assess_node)
+    builder.add_node("diagnose", diagnose_node)
+
+    builder.add_edge(START, "decompose")
+    builder.add_edge("decompose", "retrieve")
+    builder.add_edge("retrieve", "assess")
+
+    builder.add_conditional_edges(
+        "assess",
+        route_after_assess,
+        {"retrieve": "retrieve", "diagnose": "diagnose"}
+        
+        )
+    
+    builder.add_edge("diagnose", END)
+
+    return builder.compile()               
+    
+
+
 

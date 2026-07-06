@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from src.agent import decompose_node, create_state, retrieve_node, assess_node
+from src.agent import decompose_node, create_state, retrieve_node, assess_node, diagnose_node, route_after_assess, MAX_ITERATIONS
 
 
 
@@ -59,7 +59,8 @@ def test_retrieve_node_normal():
         "retrieved": {
             "API timeout": [{"id": "incident-a", "distance": 0.25}],
             "DB CPU spike": [{"id": "incident-b", "distance": 0.22}],
-        }
+        },
+        "iterations": 1,
     }
 
     assert mock_retrieve.call_count == 2
@@ -97,7 +98,7 @@ def test_retrieve_node_empty_symptoms():
     with patch("src.agent.retrieve") as mock_retrieve:
         result = retrieve_node(state)
 
-    assert result == {"retrieved": {}}
+    assert result == {"retrieved": {}, "iterations": 1}
     mock_retrieve.assert_not_called()
 
 
@@ -167,5 +168,114 @@ def test_assess_floor_missing_key():
     assert result["findings"] == "API timeout matches incident-a"
     mock_llm.assert_called_once()
     
+
+
+def test_diagnose_parse_structure():
+    """
+    Clean CAUSE | EVIDENCE | CONFIDENCE lines parse into structure dicts,
+    confidence lowercased, order preserved.
+    """
+    state = create_state("API timeout and DB CPU spike")
+    state["findings"] = "Symptoms converge on two distinct incidents"
+    state["retrieved"] = {
+        "API timeout": [{"id": "incident-a", "distance": 0.25}],
+        "DB CPU spike": [{"id": "incident-b", "distance": 0.22}],
+    }
+
+    with patch("src.agent.call_llm") as mock_llm:
+        mock_llm.return_value = (
+            "Database config error | incident-a | HIGH\n"
+            "Cache exhaustion | incident-b | Medium\n"
+            "Network partition | incident-a, incident-b | low"
+        )
+
+        result = diagnose_node(state)
+
+    assert len(result["diagnosis"]) == 3
+
+    for item in result["diagnosis"]:
+        assert "cause" in item
+        assert "evidence" in item
+        assert "confidence" in item
+
+    assert result["diagnosis"][0]["confidence"] == "high"
+    assert result["diagnosis"][1]["confidence"] == "medium"
+    assert result["diagnosis"][2]["confidence"] == "low"
+
+    assert result["diagnosis"][0]["cause"] == "Database config error"
+    assert result["diagnosis"][1]["cause"] == "Cache exhaustion"
+    assert result["diagnosis"][2]["cause"] == "Network partition"
+
+    mock_llm.assert_called_once()
+
+
+
+
+def test_diagnose_grounding_filter_drops_ungrounded():
+    """
+    A line with empty evidence is filtered out; only grounded candidates survive
+    """
+    state = create_state("Auth failure")
+    state["findings"] = "One symptom, one match"
+    state["retrieved"] = {
+        "Auth failure": [{"id": "incident-c", "distance": 0.20}],
+    }
+
+    with patch("src.agent.call_llm") as mock_llm:
+        # Two lines fed in, one grounded, one ungrounded (empty evidence)
+        mock_llm.return_value = (
+            "Credential rotation failure | incident-c | high\n"
+            "Unknown cosmic ray failure | | low"
+        )
+
+        result = diagnose_node(state)
+
+    # Count dropped by one - proves the filter removed it
+    assert len(result["diagnosis"]) == 1
+
+    # Mechanical grounding check: nothing ungrounded survives
+    assert all(d["evidence"] for d in result["diagnosis"])
+
+    #The grounded one is preserved correctly
+    assert result["diagnosis"][0] == {
+        "cause": "Credential rotation failure",
+        "evidence": "incident-c",
+        "confidence": "high",
+    }
+
+    mock_llm.assert_called_once()
+
+
+
+
+def test_route_sufficient():
+    """
+    Sufficient=True -> diagnose regardless of iteration count.
+    """
+    state = create_state("x")
+    state["sufficient"] = True
+    state["iterations"] = 0
+    assert route_after_assess(state) == "diagnose"
+
+
+def test_route_capped():
+    """Iterations at cap -> dignose even if not sufficient"""
+    state = create_state("x")
+    state["sufficient"] = False
+    state["iterations"] = MAX_ITERATIONS
+    assert route_after_assess(state) == "diagnose"
+
+def test_route_uncapped_insufficiently():
+    """
+    Not sufficient and under cap -> loop back to retrieve
+    """
+    state = create_state("x")
+    state["sufficient"] = False
+    state["iterations"] = 1
+    assert route_after_assess(state) == "retrieve"
+
+
+
+
 
 
