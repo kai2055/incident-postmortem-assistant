@@ -1,0 +1,264 @@
+
+[
+  {
+    "query": "why was roblox down for so long back in 2021",
+    "expected_doc_id": "roblox-2021-10-28",
+    "expected_section": "root_cause",
+    "difficulty": "easy",
+    "test_purpose": "Natural question about a well-known incident. Tests basic document-level retrieval."
+  },
+  {
+    "query": "what went wrong with that crowdstrike update in july 2024",
+    "expected_doc_id": "crowdstrike-2024-07-19",
+    "expected_section": "root_cause",
+    "difficulty": "easy",
+    "test_purpose": "Natural question about a widely reported incident. Tests basic document-level retrieval."
+  },
+  {
+    "query": "what happened with gitlab's database in 2017",
+    "expected_doc_id": "gitlab-2017-01-31",
+    "expected_section": "summary",
+    "difficulty": "easy",
+    "test_purpose": "Natural question referencing company and year only. Tests whether retrieval finds the incident without needing exact keywords."
+  },
+  {
+    "query": "why was cloudflare throwing 502s in 2019",
+    "expected_doc_id": "cloudflare-waf-2019-07-02",
+    "expected_section": "root_cause",
+    "difficulty": "easy",
+    "test_purpose": "Natural question with company, year, and symptom. Unambiguously points to WAF incident, not BGP incident. Tests semantic matching."
+  },
+  {
+    "query": "what was the tanstack npm thing about",
+    "expected_doc_id": "tanstack-npm-2026-05-11",
+    "expected_section": "summary",
+    "difficulty": "easy",
+    "test_purpose": "Vague phrasing, single obvious match. Tests retrieval with minimal query signal."
+  },
+  {
+    "query": "We rotated our cloud storage keys and now nothing can authenticate anymore — even though we followed the playbook.",
+    "expected_doc_id": "cloudflare-r2-2025-03-21",
+    "expected_section": "root_cause",
+    "difficulty": "medium",
+    "test_purpose": "Symptom: auth errors after credential rotation. Must match to human-error incident without naming company or service."
+  },
+  {
+    "query": "We deployed a security patch and every single Windows server crashed simultaneously.",
+    "expected_doc_id": "crowdstrike-2024-07-19",
+    "expected_section": "root_cause",
+    "difficulty": "medium",
+    "test_purpose": "Symptom: mass BSOD after security update. Must match to configuration-error incident without naming company or product."
+  },
+  {
+    "query": "After pushing a new traffic rule, our edge protection layer maxed out CPU and started refusing connections.",
+    "expected_doc_id": "cloudflare-waf-2019-07-02",
+    "expected_section": "root_cause",
+    "difficulty": "medium",
+    "test_purpose": "Symptom: CPU spike after rule deployment. Must match to configuration-error incident without naming company or WAF."
+  },
+  {
+    "query": "An old breach from months ago came back to haunt us — we missed some service accounts when we rotated credentials.",
+    "expected_doc_id": "cloudflare-thanksgiving-2023-11-23",
+    "expected_section": "root_cause",
+    "difficulty": "medium",
+    "test_purpose": "Symptom: unauthorized access via stale credentials. Must match to credential-auth incident without naming company or breach source."
+  },
+  {
+    "query": "Our database suddenly went read-only and wouldn't accept writes. It wasn't disk space or memory — some internal counter maxed out.",
+    "expected_doc_id": "sentry-postgres-2015-07-20",
+    "expected_section": "root_cause",
+    "difficulty": "medium",
+    "test_purpose": "Symptom: internal transaction limit → read-only protection. Must match to database-storage incident without naming company or database type. Distinguishes from other DB incidents."
+  },
+  {
+    "query": "Our service registry got sluggish, then write operations started failing, and the whole system fell apart like dominoes.",
+    "expected_doc_id": "roblox-2021-10-28",
+    "expected_section": "root_cause",
+    "difficulty": "medium",
+    "test_purpose": "Symptom: service discovery degradation leading to cascade. Must match to database-storage incident without naming company or technology."
+  },
+  {
+    "query": "Brief network glitch triggered a database failover. When things reconnected, both regions had conflicting changes.",
+    "expected_doc_id": "github-database-2018-10-21",
+    "expected_section": "root_cause",
+    "difficulty": "medium",
+    "test_purpose": "Symptom: network partition → failover → split-brain. Must match to database-storage incident without naming company or regions."
+  },
+  {
+    "query": "A power outage at one facility knocked out our admin dashboards and monitoring, and the recovery took way longer than it should have.",
+    "expected_doc_id": "cloudflare-control-plane-2023-11-02",
+    "expected_section": "root_cause",
+    "difficulty": "medium",
+    "test_purpose": "Symptom: data center power loss → extended control plane outage. Must match to cascading-failure incident without naming company."
+  },
+  {
+    "query": "We migrated a database and our name resolution broke. Then our attempted fix made things worse.",
+    "expected_doc_id": "github-dns-2024-10-11",
+    "expected_section": "root_cause",
+    "difficulty": "medium",
+    "test_purpose": "Symptom: DNS failure after DB migration → cascading issues. Must match to cascading-failure incident without naming company."
+  },
+  {
+    "query": "Engineer was doing maintenance, typed the wrong thing, and the main database vanished.",
+    "expected_doc_id": "gitlab-2017-01-31",
+    "expected_section": "root_cause",
+    "difficulty": "medium",
+    "test_purpose": "Symptom: human error during maintenance → data deletion. Must match to human-error incident without naming company."
+  },
+  {
+    "query": "Someone was decommissioning a few servers but put in the wrong number and wiped out way more capacity than intended.",
+    "expected_doc_id": "aws-s3-2017-02-28",
+    "expected_section": "root_cause",
+    "difficulty": "medium",
+    "test_purpose": "Symptom: wrong command → mass server removal → storage outage. Must match to human-error incident without naming company or service."
+  },
+  {
+    "query": "A pull request got merged that gave an attacker control of our CI, and they injected malicious code into our published packages.",
+    "expected_doc_id": "tanstack-npm-2026-05-11",
+    "expected_section": "root_cause",
+    "difficulty": "medium",
+    "test_purpose": "Symptom: CI pipeline hijacked via PR → malicious package publish. Must match to supply-chain incident without naming company or registry."
+  },
+  {
+    "query": "Something automatic generated a huge settings file and it got sent to all our servers everywhere at once, and everything broke.",
+    "expected_doc_id": "cloudflare-2025-11-18",
+    "expected_section": "root_cause",
+    "difficulty": "hard",
+    "test_purpose": "Cloudflare-six discrimination: distinguishing detail is an auto-generated config FILE that bloated and propagated globally. Separates bot-management incident from WAF regex, backbone router, and data-center power incidents.",
+    "distractors": [
+      "cloudflare-waf-2019-07-02",
+      "cloudflare-backbone-2020-07-17",
+      "cloudflare-control-plane-2023-11-02"
+    ]
+  },
+  {
+    "query": "We pushed a security rule that passed all tests but caused some edge servers to spin forever on specific request patterns.",
+    "expected_doc_id": "cloudflare-waf-2019-07-02",
+    "expected_section": "root_cause",
+    "difficulty": "hard",
+    "test_purpose": "Cloudflare-six discrimination: distinguishing detail is a VALID rule that caused pathological CPU behavior under specific payloads. Separates WAF regex incident from config-file bloating, backbone router misconfiguration, and credential mis-deployment.",
+    "distractors": [
+      "cloudflare-2025-11-18",
+      "cloudflare-backbone-2020-07-17",
+      "cloudflare-r2-2025-03-21"
+    ]
+  },
+  {
+    "query": "Short network hiccup between our sites made the database switch over on its own. When it came back, each side had changes the other didn't, so we had to pick one and rebuild the rest from backup.",
+    "expected_doc_id": "github-database-2018-10-21",
+    "expected_section": "root_cause",
+    "difficulty": "hard",
+    "test_purpose": "Database-storage discrimination: distinguishing detail is split-brain after cross-region failover with divergent writes requiring backup rebuild. Separates from replication lag, corruption, and transaction limit incidents.",
+    "distractors": [
+      "github-auth-2026-02-17",
+      "roblox-2021-10-28",
+      "sentry-postgres-2015-07-20"
+    ]
+  },
+  {
+    "query": "Database locked itself to read-only. Restarts didn't help. Turned out there was a hard internal limit we hit and had to manually clear out.",
+    "expected_doc_id": "sentry-postgres-2015-07-20",
+    "expected_section": "root_cause",
+    "difficulty": "hard",
+    "test_purpose": "Database-storage discrimination: distinguishing detail is a hard internal engine ceiling forcing read-only mode, requiring manual cleanup. Separates from corruption, failover, and replication lag incidents.",
+    "distractors": [
+      "github-database-2018-10-21",
+      "roblox-2021-10-28",
+      "github-auth-2026-02-17"
+    ]
+  },
+  {
+    "query": "Standard server removal command, one wrong parameter, way too many nodes went away. The storage layer needed a full restart to come back.",
+    "expected_doc_id": "aws-s3-2017-02-28",
+    "expected_section": "root_cause",
+    "difficulty": "hard",
+    "test_purpose": "Human-error discrimination: distinguishing detail is a standard playbook command with a wrong parameter causing mass server removal and full subsystem restart. Separates from database deletion and credential mis-deployment.",
+    "distractors": [
+      "gitlab-2017-01-31",
+      "cloudflare-r2-2025-03-21"
+    ]
+  },
+  {
+    "query": "Attacker got in using old credentials from a breach we thought we'd handled. Some service accounts we thought were dead were actually still active.",
+    "expected_doc_id": "cloudflare-thanksgiving-2023-11-23",
+    "expected_section": "root_cause",
+    "difficulty": "hard",
+    "test_purpose": "Credential-adjacent discrimination: distinguishing detail is stale credentials from an OLD third-party breach, missed because they were assumed unused. Separates from credential rotation mis-deployment and replication lag in auth system.",
+    "distractors": [
+      "cloudflare-r2-2025-03-21",
+      "github-auth-2026-02-17"
+    ]
+  },
+  {
+    "query": "Kubernetes cluster autoscaling failure caused pod eviction cascade across three namespaces.",
+    "expected_doc_id": null,
+    "expected_section": null,
+    "difficulty": "no-match",
+    "test_purpose": "No relevant incident in corpus — should decline. Tests whether the system recognizes a plausible but absent failure mode."
+  },
+  {
+    "query": "weather in Paris today",
+    "expected_doc_id": null,
+    "expected_section": null,
+    "difficulty": "no-match",
+    "test_purpose": "Completely unrelated query — should decline. Tests whether the system rejects non-technical queries."
+  },
+  {
+    "query": "DDoS attack overwhelmed our CDN edge nodes and caused a 12-hour outage.",
+    "expected_doc_id": null,
+    "expected_section": null,
+    "difficulty": "no-match",
+    "test_purpose": "Plausible-sounding but no matching incident — should decline. Tests whether the system avoids matching to partial-similar incidents (e.g., Cloudflare outages that weren't DDoS)."
+  },
+  {
+    "query": "SSL certificate expiry caused our mobile app authentication to fail for all users.",
+    "expected_doc_id": null,
+    "expected_section": null,
+    "difficulty": "no-match",
+    "test_purpose": "Credential-adjacent but no matching incident — should decline. Tests whether the system avoids matching to credential-auth incidents when the mechanism differs."
+  },
+  {
+    "query": "Container image registry was compromised through a malicious base image from an upstream vendor.",
+    "expected_doc_id": null,
+    "expected_section": null,
+    "difficulty": "no-match",
+    "test_purpose": "Supply-chain-adjacent but no matching incident — should decline. Tests whether the system avoids matching to TanStack when the vector differs (base image vs. CI pipeline hijack)."
+  },
+  {
+    "query_intent": "minor severity incidents",
+    "filter": {
+      "severity": "minor"
+    },
+    "expected_doc_ids": [
+      "github-auth-2026-02-17"
+    ],
+    "difficulty": "filter",
+    "test_purpose": "Metadata filter: severity=minor should return exactly 1 result. Tests whether the filter correctly narrows the corpus."
+  },
+  {
+    "query_intent": "configuration error incidents at Cloudflare",
+    "filter": {
+      "company": "Cloudflare",
+      "root_cause_category": "configuration-error"
+    },
+    "expected_doc_ids": [
+      "cloudflare-2025-11-18",
+      "cloudflare-waf-2019-07-02"
+    ],
+    "difficulty": "filter",
+    "test_purpose": "Metadata filter: company=Cloudflare + category=configuration-error should return exactly 2 results. Tests whether combined filters work correctly."
+  },
+  {
+    "query_intent": "database storage incidents with critical severity",
+    "filter": {
+      "root_cause_category": "database-storage",
+      "severity": "critical"
+    },
+    "expected_doc_ids": [
+      "roblox-2021-10-28",
+      "github-database-2018-10-21"
+    ],
+    "difficulty": "filter",
+    "test_purpose": "Metadata filter: category=database-storage + severity=critical should return exactly 2 results. Tests whether combined filters work correctly."
+  }
+]
