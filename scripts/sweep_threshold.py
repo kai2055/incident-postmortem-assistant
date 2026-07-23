@@ -16,6 +16,7 @@ import argparse
 
 
 from src.evaluation import evaluate_suite, load_queries
+from src.embedding import DEFAULT_TOP_K
 
 
 THRESHOLDS = [0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50]
@@ -28,7 +29,7 @@ def run_sweep(queries: list[dict], thresholds: list[float]) -> list[dict]:
     rows = []
     for t in thresholds:
         print(f"  Evaluating at threshold {t:.2f} ...")
-        results = evaluate_suite(queries, top_k=10, threshold=t)
+        results = evaluate_suite(queries, top_k=DEFAULT_TOP_K, threshold=t)
         o = results["overall"]
         rows.append({
             "threshold": t,

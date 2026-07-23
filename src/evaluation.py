@@ -23,7 +23,7 @@ import statistics
 from pathlib import Path
 from datetime import datetime, timezone
 
-from src.embedding import retrieve, RELEVANCE_THRESHOLD
+from src.embedding import retrieve, RELEVANCE_THRESHOLD, DEFAULT_TOP_K
 
 
 QUERIES_PATH = Path("data/eval/query_suite.json")
@@ -307,7 +307,7 @@ def save_results(results: dict, path: Path, top_k: int, threshold: float) -> Non
 
 def main():
     queries = load_queries()
-    top_k = 5
+    top_k = DEFAULT_TOP_K
     threshold = RELEVANCE_THRESHOLD
     results = evaluate_suite(queries, top_k=top_k, threshold=threshold)
     print_report(results)

@@ -21,6 +21,7 @@ from src.vectorstore import store_chunks, search, CHROMA_COLLECTION
 EMBED_MODEL = "nomic-embed-text"
 VECTOR_DIM = 768
 RELEVANCE_THRESHOLD = 0.30
+DEFAULT_TOP_K = 10
 
 
 
@@ -96,7 +97,7 @@ def index_chunks(
 def retrieve(
     query: str,
     collection_name: str = CHROMA_COLLECTION,
-    top_k: int = 10,
+    top_k: int = DEFAULT_TOP_K,
     filter_metadata: dict = None,
     threshold: float = RELEVANCE_THRESHOLD,
 ) -> List[dict]:

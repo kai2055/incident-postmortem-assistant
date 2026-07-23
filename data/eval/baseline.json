@@ -1,12 +1,12 @@
 {
   "run_metadata": {
-    "timestamp": "2026-06-28T23:19:28.133047+00:00",
-    "top_k": 5,
+    "timestamp": "2026-07-23T19:03:14.842993+00:00",
+    "top_k": 10,
     "threshold": 0.3
   },
   "results": {
     "overall": {
-      "top_k": 5,
+      "top_k": 10,
       "threshold": 0.3,
       "total_queries": 31,
       "hit_rate": 1.0,
@@ -45,7 +45,8 @@
           "roblox-2021-10-28",
           "cloudflare-bgp-2019-06-24",
           "cloudflare-2025-11-18",
-          "cloudflare-control-plane-2023-11-02"
+          "cloudflare-control-plane-2023-11-02",
+          "roblox-2021-10-28"
         ],
         "hit": true,
         "reciprocal_rank": 1.0,
@@ -74,7 +75,12 @@
           "github-database-2018-10-21",
           "github-dns-2024-10-11",
           "github-auth-2026-02-17",
-          "github-database-2018-10-21"
+          "github-database-2018-10-21",
+          "gitlab-2017-01-31",
+          "github-dns-2024-10-11",
+          "github-auth-2026-02-17",
+          "github-auth-2026-02-17",
+          "github-dns-2024-10-11"
         ],
         "hit": true,
         "reciprocal_rank": 1.0,
@@ -90,7 +96,12 @@
           "cloudflare-2025-11-18",
           "cloudflare-waf-2019-07-02",
           "cloudflare-thanksgiving-2023-11-23",
-          "cloudflare-r2-2025-03-21"
+          "cloudflare-r2-2025-03-21",
+          "cloudflare-control-plane-2023-11-02",
+          "cloudflare-waf-2019-07-02",
+          "cloudflare-thanksgiving-2023-11-23",
+          "cloudflare-bgp-2019-06-24",
+          "cloudflare-control-plane-2023-11-02"
         ],
         "hit": true,
         "reciprocal_rank": 1.0,
@@ -118,6 +129,7 @@
           "cloudflare-2025-11-18",
           "cloudflare-r2-2025-03-21",
           "cloudflare-thanksgiving-2023-11-23",
+          "github-auth-2026-02-17",
           "github-auth-2026-02-17"
         ],
         "hit": true,
@@ -162,7 +174,10 @@
           "cloudflare-thanksgiving-2023-11-23",
           "cloudflare-thanksgiving-2023-11-23",
           "cloudflare-r2-2025-03-21",
-          "cloudflare-r2-2025-03-21"
+          "cloudflare-r2-2025-03-21",
+          "cloudflare-r2-2025-03-21",
+          "cloudflare-r2-2025-03-21",
+          "tanstack-npm-2026-05-11"
         ],
         "hit": true,
         "reciprocal_rank": 1.0,
@@ -178,7 +193,9 @@
           "sentry-postgres-2015-07-20",
           "github-database-2018-10-21",
           "sentry-postgres-2015-07-20",
-          "cloudflare-2025-11-18"
+          "cloudflare-2025-11-18",
+          "gitlab-2017-01-31",
+          "tanstack-npm-2026-05-11"
         ],
         "hit": true,
         "reciprocal_rank": 1.0,
@@ -194,7 +211,12 @@
           "aws-s3-2017-02-28",
           "github-dns-2024-10-11",
           "roblox-2021-10-28",
-          "cloudflare-2025-11-18"
+          "cloudflare-2025-11-18",
+          "aws-s3-2017-02-28",
+          "github-auth-2026-02-17",
+          "cloudflare-waf-2019-07-02",
+          "aws-s3-2017-02-28",
+          "aws-s3-2017-02-28"
         ],
         "hit": true,
         "reciprocal_rank": 1.0,
@@ -210,7 +232,12 @@
           "github-database-2018-10-21",
           "github-database-2018-10-21",
           "github-dns-2024-10-11",
-          "cloudflare-2025-11-18"
+          "cloudflare-2025-11-18",
+          "github-database-2018-10-21",
+          "cloudflare-2025-11-18",
+          "gitlab-2017-01-31",
+          "aws-s3-2017-02-28",
+          "cloudflare-control-plane-2023-11-02"
         ],
         "hit": true,
         "reciprocal_rank": 1.0,
@@ -226,7 +253,12 @@
           "cloudflare-control-plane-2023-11-02",
           "github-database-2018-10-21",
           "github-database-2018-10-21",
-          "cloudflare-control-plane-2023-11-02"
+          "cloudflare-control-plane-2023-11-02",
+          "roblox-2021-10-28",
+          "aws-s3-2017-02-28",
+          "aws-s3-2017-02-28",
+          "sentry-postgres-2015-07-20",
+          "gitlab-2017-01-31"
         ],
         "hit": true,
         "reciprocal_rank": 1.0,
@@ -242,7 +274,12 @@
           "github-dns-2024-10-11",
           "github-dns-2024-10-11",
           "github-dns-2024-10-11",
-          "github-database-2018-10-21"
+          "github-database-2018-10-21",
+          "roblox-2021-10-28",
+          "cloudflare-2025-11-18",
+          "github-database-2018-10-21",
+          "cloudflare-2025-11-18",
+          "gitlab-2017-01-31"
         ],
         "hit": true,
         "reciprocal_rank": 1.0,
@@ -258,7 +295,12 @@
           "cloudflare-r2-2025-03-21",
           "aws-s3-2017-02-28",
           "gitlab-2017-01-31",
-          "sentry-postgres-2015-07-20"
+          "sentry-postgres-2015-07-20",
+          "cloudflare-2025-11-18",
+          "github-database-2018-10-21",
+          "cloudflare-r2-2025-03-21",
+          "github-database-2018-10-21",
+          "gitlab-2017-01-31"
         ],
         "hit": true,
         "reciprocal_rank": 1.0,
@@ -274,7 +316,12 @@
           "gitlab-2017-01-31",
           "cloudflare-2025-11-18",
           "github-dns-2024-10-11",
-          "cloudflare-r2-2025-03-21"
+          "cloudflare-r2-2025-03-21",
+          "cloudflare-r2-2025-03-21",
+          "github-dns-2024-10-11",
+          "roblox-2021-10-28",
+          "github-database-2018-10-21",
+          "cloudflare-thanksgiving-2023-11-23"
         ],
         "hit": true,
         "reciprocal_rank": 1.0,
@@ -321,7 +368,10 @@
           "roblox-2021-10-28",
           "cloudflare-waf-2019-07-02",
           "cloudflare-2025-11-18",
-          "cloudflare-thanksgiving-2023-11-23"
+          "cloudflare-thanksgiving-2023-11-23",
+          "cloudflare-thanksgiving-2023-11-23",
+          "cloudflare-thanksgiving-2023-11-23",
+          "cloudflare-waf-2019-07-02"
         ],
         "hit": true,
         "reciprocal_rank": 1.0,
@@ -337,7 +387,12 @@
           "github-database-2018-10-21",
           "github-database-2018-10-21",
           "github-database-2018-10-21",
-          "gitlab-2017-01-31"
+          "gitlab-2017-01-31",
+          "cloudflare-control-plane-2023-11-02",
+          "aws-s3-2017-02-28",
+          "cloudflare-2025-11-18",
+          "sentry-postgres-2015-07-20",
+          "github-dns-2024-10-11"
         ],
         "hit": true,
         "reciprocal_rank": 1.0,
@@ -353,6 +408,11 @@
           "gitlab-2017-01-31",
           "sentry-postgres-2015-07-20",
           "gitlab-2017-01-31",
+          "sentry-postgres-2015-07-20",
+          "github-database-2018-10-21",
+          "roblox-2021-10-28",
+          "sentry-postgres-2015-07-20",
+          "cloudflare-2025-11-18",
           "sentry-postgres-2015-07-20"
         ],
         "hit": true,
@@ -369,7 +429,12 @@
           "aws-s3-2017-02-28",
           "sentry-postgres-2015-07-20",
           "sentry-postgres-2015-07-20",
-          "gitlab-2017-01-31"
+          "gitlab-2017-01-31",
+          "gitlab-2017-01-31",
+          "sentry-postgres-2015-07-20",
+          "github-database-2018-10-21",
+          "roblox-2021-10-28",
+          "github-dns-2024-10-11"
         ],
         "hit": true,
         "reciprocal_rank": 1.0,
@@ -385,6 +450,10 @@
           "cloudflare-thanksgiving-2023-11-23",
           "cloudflare-thanksgiving-2023-11-23",
           "cloudflare-thanksgiving-2023-11-23",
+          "cloudflare-r2-2025-03-21",
+          "tanstack-npm-2026-05-11",
+          "sentry-postgres-2015-07-20",
+          "cloudflare-r2-2025-03-21",
           "cloudflare-r2-2025-03-21"
         ],
         "hit": true,
@@ -417,7 +486,11 @@
           "cloudflare-bgp-2019-06-24",
           "github-dns-2024-10-11",
           "cloudflare-waf-2019-07-02",
-          "cloudflare-thanksgiving-2023-11-23"
+          "cloudflare-thanksgiving-2023-11-23",
+          "cloudflare-control-plane-2023-11-02",
+          "cloudflare-control-plane-2023-11-02",
+          "cloudflare-bgp-2019-06-24",
+          "roblox-2021-10-28"
         ]
       },
       {
