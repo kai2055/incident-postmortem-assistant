@@ -12,6 +12,8 @@ Usage:
 import json
 from datetime import datetime, timezone
 from pathlib import Path
+import argparse
+
 
 from src.evaluation import evaluate_suite, load_queries
 
@@ -26,7 +28,7 @@ def run_sweep(queries: list[dict], thresholds: list[float]) -> list[dict]:
     rows = []
     for t in thresholds:
         print(f"  Evaluating at threshold {t:.2f} ...")
-        results = evaluate_suite(queries, top_k=5, threshold=t)
+        results = evaluate_suite(queries, top_k=10, threshold=t)
         o = results["overall"]
         rows.append({
             "threshold": t,
@@ -54,37 +56,55 @@ def print_table(rows: list[dict]) -> None:
     print(line)
 
 
-def save_sweep(rows: list[dict], path: Path, thresholds: list[float]) -> None:
+def save_sweep(rows: list[dict], path: Path, thresholds: list[float], suite: Path) -> None:
     """Persist sweep results with metadata."""
     output = {
         "run_metadata": {
             "timestamp": datetime.now(timezone.utc).isoformat(),
+            "suite": str(suite),
             "thresholds_swept": thresholds,
             "total_runs": len(rows),
         },
         "sweep_results": rows,
     }
-    
+
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w") as f:
         json.dump(output, f, indent=2)
-    
+
     print(f"\nSweep summary saved to {path}")
 
 
 def main():
-    print("Loading query suite ...")
-    queries = load_queries()
+    parser = argparse.ArgumentParser(description="Threshold sweep")
+    parser.add_argument(
+        "--suite",
+        type=Path,
+        default=OUTPUT_DIR / "query_suite.json",
+        help="Path to the query suite JSON",
+    )
+    parser.add_argument(
+        "--out",
+        type=Path,
+        default=None,
+        help="Where to write the summary (defaults to sweep_summary_<suite>.json)",
+    )
+    args = parser.parse_args()
+
+    out_path = args.out or OUTPUT_DIR / f"sweep_summary_{args.suite.stem}.json"
+
+    print(f"Loading query suite from {args.suite} ...")
+    queries = load_queries(args.suite)
     print(f"Loaded {len(queries)} queries. Running sweep across {len(THRESHOLDS)} thresholds.")
     print(f"Each run embeds {len(queries)} queries — this will take a few minutes.\n")
-    
+
     rows = run_sweep(queries, THRESHOLDS)
     print_table(rows)
-    save_sweep(rows, SUMMARY_PATH, THRESHOLDS)
-    
+    save_sweep(rows, out_path, THRESHOLDS, args.suite)
+
     print("\nNo auto-recommendation — the recon showed no clean separation.")
-    print("Read the table and pick the tradeoff that fits your reliability story.")
-    
+   
+
     return rows
 
 

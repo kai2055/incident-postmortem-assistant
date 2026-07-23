@@ -96,7 +96,7 @@ def index_chunks(
 def retrieve(
     query: str,
     collection_name: str = CHROMA_COLLECTION,
-    top_k: int = 5,
+    top_k: int = 10,
     filter_metadata: dict = None,
     threshold: float = RELEVANCE_THRESHOLD,
 ) -> List[dict]:

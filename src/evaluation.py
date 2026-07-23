@@ -140,7 +140,7 @@ def score_filter_query(query_entry: dict, top_k: int, threshold: float) -> dict:
     filter_metadata = query_entry.get("filter") or None
     results = retrieve(
         query_entry["query_intent"],
-        top_k=top_k,
+        top_k=1000,
         filter_metadata=filter_metadata,
         threshold=None, # No distance cutoff - return all metadata-matched results
     )

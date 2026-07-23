@@ -110,7 +110,7 @@ def retrieve_node(state: DiagnosticState) -> dict:
     retrieved:dict[str, list[dict]] = {}
 
     for symptom in symptoms:
-        results = retrieve(symptom, top_k=3)    # modest per-symptom; cross refrence handles multiple symptoms
+        results = retrieve(symptom)    
         retrieved[symptom] = results  # [] is meaningful: "no evidence for this symptom"
 
     # NOTE: This builds a fresh dict each pass. When the Loop edges are wired, 
