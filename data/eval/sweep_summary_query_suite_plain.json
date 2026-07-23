@@ -1,0 +1,60 @@
+{
+  "run_metadata": {
+    "timestamp": "2026-07-23T18:33:58.950151+00:00",
+    "suite": "data/eval/query_suite_plain.json",
+    "thresholds_swept": [
+      0.2,
+      0.25,
+      0.3,
+      0.35,
+      0.4,
+      0.45,
+      0.5
+    ],
+    "total_runs": 7
+  },
+  "sweep_results": [
+    {
+      "threshold": 0.2,
+      "hit_rate": 0.08695652173913043,
+      "mrr": 0.08695652173913043,
+      "decline_rate": 1.0
+    },
+    {
+      "threshold": 0.25,
+      "hit_rate": 0.391304347826087,
+      "mrr": 0.391304347826087,
+      "decline_rate": 0.8
+    },
+    {
+      "threshold": 0.3,
+      "hit_rate": 0.8695652173913043,
+      "mrr": 0.7898550724637681,
+      "decline_rate": 0.6
+    },
+    {
+      "threshold": 0.35,
+      "hit_rate": 0.9565217391304348,
+      "mrr": 0.822463768115942,
+      "decline_rate": 0.2
+    },
+    {
+      "threshold": 0.4,
+      "hit_rate": 0.9565217391304348,
+      "mrr": 0.822463768115942,
+      "decline_rate": 0.2
+    },
+    {
+      "threshold": 0.45,
+      "hit_rate": 0.9565217391304348,
+      "mrr": 0.822463768115942,
+      "decline_rate": 0.2
+    },
+    {
+      "threshold": 0.5,
+      "hit_rate": 0.9565217391304348,
+      "mrr": 0.822463768115942,
+      "decline_rate": 0.0
+    }
+  ]
+}
