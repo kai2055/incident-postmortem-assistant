@@ -10,6 +10,10 @@ with a deterministic source list
 from typing import List, Dict, Any, Optional
 
 import ollama
+import os
+import requests
+from dotenv import load_dotenv
+
 
 from src.embedding import retrieve
 
@@ -17,10 +21,13 @@ from src.embedding import retrieve
 NO_MATCH_MESSAGE = "I don't have a matching incident in the sources."
 
 
-
+load_dotenv()
 # config
+LLM_PROVIDER = os.getenv("LLM_PROVIDER", "ollama")
+GEN_MODEL = "qwen3:8b"          # local, via Ollama
+OPENROUTER_MODEL = "qwen/qwen3-8b"  # same weights, hosted
+OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
-GEN_MODEL = "qwen3:8b"
 
 
 
@@ -177,14 +184,46 @@ def answer_query(
     
     return generate_answer(question, results)
 
-def call_llm(prompt: str, model: str = GEN_MODEL) -> str:
+def call_llm(prompt: str, model: str = None) -> str:
     """
     Send a prompt to the model and return the text response.
-    This is the single point of contact with Ollama.
+
+    Single point of contact with the LLM. Provider is chosen by the 
+    LLM_PROVIDER environment variable:
+        ollama      - local inference, the supported production path
+        openrouter  - hosted inference, used for evaluation runs
     
+    Same model weights either way (qwen 8B), so results transfer.
+
     """
+    if LLM_PROVIDER == "openrouter":
+        return _call_openrouter(prompt, model or OPENROUTER_MODEL)
+    return _call_ollama(prompt, model or GEN_MODEL)
+
+
+def _call_ollama(prompt: str, model:str) -> str:
     response = ollama.generate(model=model, prompt=prompt)
     return response.get("response", "")
+
+def _call_openrouter(prompt: str, model: str) -> str:
+    api_key = os.getenv("OPENROUTER_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "LLM_PROVIDER=openrouter but OPENROUTER_API_KEY is not set. "
+            "Add it to .env"
+
+        )
+    response = requests.post(
+        OPENROUTER_URL,
+        headers={"Authorization": f"Bearer {api_key}"},
+        json={
+            "model": model,
+            "messages": [{"role": "user", "content": prompt}],
+        },
+        timeout=120,
+    )
+    response.raise_for_status()
+    return response.json()["choices"][0]["message"]["content"]
 
 
 # Main
