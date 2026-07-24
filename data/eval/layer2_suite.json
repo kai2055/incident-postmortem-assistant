@@ -1,0 +1,123 @@
+[
+  {
+    "id": "L2-001",
+    "description": "We pushed a new rule to our traffic filter, the servers handling incoming traffic started maxing out CPU, and everything started returning errors.",
+    "expected_docs": ["cloudflare-waf-2019-07-02"],
+    "primary_root_cause": "cloudflare-waf-2019-07-02",
+    "kind": "single",
+    "test_purpose": "one incident, three clauses, first clause is an action not a symptom"
+  },
+  {
+    "id": "L2-002",
+    "description": "Someone was doing routine cleanup, ran a command in the wrong place, and the main database just disappeared.",
+    "expected_docs": ["gitlab-2017-01-31"],
+    "primary_root_cause": "gitlab-2017-01-31",
+    "kind": "single",
+    "test_purpose": "human error, opening clause is context rather than symptom"
+  },
+  {
+    "id": "L2-003",
+    "description": "An operator was taking a few servers out of service, put in the wrong number, and way too many went away at once.",
+    "expected_docs": ["aws-s3-2017-02-28"],
+    "primary_root_cause": "aws-s3-2017-02-28",
+    "kind": "single",
+    "test_purpose": "wrong parameter, no jargon anywhere in the description"
+  },
+  {
+    "id": "L2-004",
+    "description": "We found someone had been in our systems for days using old login info from a breach we thought we cleaned up months ago.",
+    "expected_docs": ["cloudflare-thanksgiving-2023-11-23"],
+    "primary_root_cause": "cloudflare-thanksgiving-2023-11-23",
+    "kind": "single",
+    "test_purpose": "single long clause, tests whether Decompose splits at all"
+  },
+  {
+    "id": "L2-005",
+    "description": "Our database locked itself to read-only, restarts didn't help, and it turned out some internal counter had hit a hard ceiling.",
+    "expected_docs": ["sentry-postgres-2015-07-20"],
+    "primary_root_cause": "sentry-postgres-2015-07-20",
+    "kind": "single",
+    "test_purpose": "all three clauses are genuine symptoms"
+  },
+  {
+    "id": "L2-006",
+    "description": "Network dropped between our two sites for about 40 seconds, the database switched over to the backup on its own, and now both sides have changes the other doesn't have.",
+    "expected_docs": ["github-database-2018-10-21"],
+    "primary_root_cause": "github-database-2018-10-21",
+    "kind": "single",
+    "test_purpose": "sequential symptoms, plain wording for split-brain"
+  },
+  {
+    "id": "L2-007",
+    "description": "Our service registry got sluggish, then write operations started failing, and the whole system fell apart like dominoes.",
+    "expected_docs": ["roblox-2021-10-28"],
+    "primary_root_cause": "roblox-2021-10-28",
+    "kind": "single",
+    "test_purpose": "cascade described informally"
+  },
+  {
+    "id": "L2-008",
+    "description": "We deployed a new traffic rule and the servers handling incoming traffic started maxing out CPU and dropping everything, and separately our settings file got pushed everywhere at once and broke the whole network.",
+    "expected_docs": ["cloudflare-waf-2019-07-02", "cloudflare-2025-11-18"],
+    "primary_root_cause": null,
+    "kind": "multi",
+    "test_purpose": "two unrelated incidents in one description, agent should not merge them"
+  },
+  {
+    "id": "L2-009",
+    "description": "An operator ran the wrong command during maintenance and deleted our main database, and in a separate incident someone put in the wrong parameter while removing servers and took down way more capacity than intended.",
+    "expected_docs": ["gitlab-2017-01-31", "aws-s3-2017-02-28"],
+    "primary_root_cause": null,
+    "kind": "multi",
+    "test_purpose": "two human-error incidents, similar shape, must stay distinct"
+  },
+  {
+    "id": "L2-010",
+    "description": "We pushed a security update to all our Windows machines, and every single one of them crashed and blue-screened at the same time.",
+    "expected_docs": ["crowdstrike-2024-07-19"],
+    "primary_root_cause": "crowdstrike-2024-07-19",
+    "kind": "cause-effect",
+    "test_purpose": "cause then effect; note this target failed Layer 1 retrieval entirely"
+  },
+  {
+    "id": "L2-011",
+    "description": "We rotated our cloud storage keys following the playbook, and now nothing can authenticate even though we did everything right.",
+    "expected_docs": ["cloudflare-r2-2025-03-21"],
+    "primary_root_cause": "cloudflare-r2-2025-03-21",
+    "kind": "cause-effect",
+    "test_purpose": "cause then effect, action clause first"
+  },
+  {
+    "id": "L2-012",
+    "description": "We found someone had been in our systems for days using old login info, and our nightly finance reports stopped generating and the numbers coming out are wrong.",
+    "expected_docs": ["cloudflare-thanksgiving-2023-11-23"],
+    "primary_root_cause": "cloudflare-thanksgiving-2023-11-23",
+    "kind": "partial",
+    "test_purpose": "first clause matches, second is outside the corpus; should trigger the loop"
+  },
+  {
+    "id": "L2-013",
+    "description": "Our database locked itself to read-only and some internal counter had hit a hard ceiling, and the office badge readers stopped working so nobody could get into the building.",
+    "expected_docs": ["sentry-postgres-2015-07-20"],
+    "primary_root_cause": "sentry-postgres-2015-07-20",
+    "kind": "partial",
+    "test_purpose": "first clause matches, second is physical-access and outside the corpus"
+  },
+  {
+    "id": "L2-014",
+    "description": "Our nightly reports stopped generating, the finance team says last month's numbers are wrong, and nobody changed anything as far as we know.",
+    "expected_docs": [],
+    "primary_root_cause": null,
+    "kind": "no-match",
+    "test_purpose": "reporting and finance, nothing like it in the corpus; agent should decline"
+  },
+  {
+    "id": "L2-015",
+    "description": "The air conditioning in the server room failed over the weekend, a few machines shut themselves down from the heat, and one of them hasn't come back up.",
+    "expected_docs": [],
+    "primary_root_cause": null,
+    "kind": "no-match",
+    "test_purpose": "physical and hardware failure, no software incident in the corpus resembles it"
+  }
+]
+
