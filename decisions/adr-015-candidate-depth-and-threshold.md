@@ -186,9 +186,7 @@ in noise. Layer 2 now retrieves the same depth as Layer 1. The deferred
 `score_filter_query` cap is closed. Two evaluation suites now exist, and the
 gap between them is a measured quantity rather than an assumption.
 
-**Negative.** Ten candidates per query instead of five means more work per
-retrieval, which matters on CPU-bound local inference. Not measured as
-significant, but noted.
+**Negative.** Ten candidates per query instead of five means means longer evidence blocks in the Layer 2 prompts, and prompt length is what CPU inference charges for. Measured after the fact; the end-to-end agent run went from 55 minutes to 101. This is not a minor cost - it makes iterating on Layer 2 impractical until inference speed is adressed.
 
 **Stale artifacts.** `data/eval/baseline.json` was produced at `top_k=5` and
 must be regenerated. When it is, the change in numbers is attributable to the
