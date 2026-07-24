@@ -2,32 +2,43 @@ from typing import TypedDict, Annotated
 import re
 import operator
 
-
-
 from langgraph.graph import StateGraph, START, END
 from src.generation import call_llm
-from src.embedding import retrieve # Layer 1 retriever, calibrated to 0.30 threshold
+from src.embedding import retrieve  # Layer 1 retriever, calibrated to 0.30 threshold
 
 
+# ── Helpers ──────────────────────────────────────────────────────────────
+
+def strip_think(text: str) -> str:
+    """
+    Remove qwen3/deepseek reasoning blocks.
+
+    Extracted so the regex exists in exactly one place. It was previously
+    inlined in three nodes and mistyped repeatedly on retype — a leading
+    space made it silently never fire, letting reasoning text through as data.
+    """
+    return re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
 
 
 def merge_retrieved(old: dict, new: dict) -> dict:
     """
-    Reducer: merge per-loop retrieval results. Latest-wins  per symptom-
-    a gap-directed re-retrieve fills the hole rather than stacking history
+    Reducer: merge per-loop retrieval results. Latest-wins per symptom -
+    a gap-directed re-retrieve fills the hole rather than stacking history.
     """
     return {**old, **new}
+
+
+# ── State ────────────────────────────────────────────────────────────────
 
 class DiagnosticState(TypedDict):
     original_query: str
     symptoms: list[str]
-    retrieved: Annotated[dict[str, list[dict]], merge_retrieved]  #symptom -> list of incident dicts
+    retrieved: Annotated[dict[str, list[dict]], merge_retrieved]  # symptom -> incident dicts
     findings: str
     iterations: Annotated[int, operator.add]
-    diagnosis:list[dict]
+    diagnosis: list[dict]
     sufficient: bool
     gap_reason: str
-
 
 
 def create_state(original_query: str) -> DiagnosticState:
@@ -43,22 +54,21 @@ def create_state(original_query: str) -> DiagnosticState:
     }
 
 
+# ── Node 1: Decompose ────────────────────────────────────────────────────
 
 def decompose_node(state: DiagnosticState) -> dict:
     """
     Break the incident description into distinct symptoms.
 
     Extracts only symptoms explicitly stated in the query.
-    No inference, no addition - what the engineer saw, not what 
-    might be happenning
-    
-    
+    No inference, no addition - what the engineer saw, not what
+    might be happening.
     """
 
     query = state["original_query"]
 
     prompt = f"""You are a diagnostic assistant. Your job is to read an engineer's incident
-    description and extract only the symptoms they explicitly report
+    description and extract only the symptoms they explicitly report.
 
     ## Rules
 
@@ -68,67 +78,87 @@ def decompose_node(state: DiagnosticState) -> dict:
     2. **One symptom per line.** Each symptom is a single line of plain text.
     No numbering, no bullets, no preamble, no conclusion.
 
-    3. **Symptoms only, not causes.** "Database CPU spiked" is a symptom. 
+    3. **Symptoms only, not causes.** "Database CPU spiked" is a symptom.
     "Database CPU spiked because of a bad query" is interpretation - drop the
     "because" part.
 
     4. **If the description is vague, extract what you can.**
     A single vague symptom is better than inventing specifics.
 
-
     ## Incident Description
 
     {query}
 
-
     ## Symptoms
 
-
     """
+
     raw_response = call_llm(prompt)
+    cleaned = strip_think(raw_response)
 
-    # Strip think tokens if prsent - qwen3 sometimes emits them
-    cleaned = re.sub(r"<think>.*?</think>", "", raw_response, flags=re.DOTALL)
+    # Parse: drop empties and preambles, strip list markers, keep the rest.
+    # The prompt forbids bullets and preamble; the model adds them anyway.
+    symptoms = []
+    for line in cleaned.split("\n"):
+        line = line.strip()
+        if not line:
+            continue
 
-    # Parse: split on newlines, strip whitespace, drop empty lines
+        # Skip preamble lines (e.g. "Here are the symptoms:")
+        if line.endswith(":"):
+            continue
 
-    symptoms = [line.strip() for line in cleaned.split("\n") if line.strip()]
+        # Strip list markers only. A digit counts as a marker only when
+        # followed by '.' or ')' AND then whitespace or end of line, so
+        # "500 errors", "3.5 second latency" and "502s" survive intact.
+        # The '|$' branch catches a bare "-" with no text after it.
+        line = re.sub(r"^(?:[-*•]|\d+[.)])(?:\s+|$)", "", line).strip()
+        if not line:
+            continue
+
+        symptoms.append(line)
 
     return {"symptoms": symptoms}
 
 
+# ── Node 2: Retrieve ─────────────────────────────────────────────────────
 
-def retrieve_node(state: DiagnosticState) -> dict: 
+def retrieve_node(state: DiagnosticState) -> dict:
     """
     Retrieve past incidents for each decomposed symptom.
 
-    Calls the calibrated Layer 1 retriever per symptom. Empty results are preserved
-    as [] - they are the signal the sufficiency check reads later
-    
+    Calls the calibrated Layer 1 retriever per symptom. Empty results are
+    preserved as [] - they are the signal the sufficiency check reads later.
+
+    top_k is deliberately not passed: the node inherits DEFAULT_TOP_K from
+    retrieve(). It previously hardcoded 3, meaning the agent saw less
+    evidence per symptom than a single Layer 1 query does. See ADR-015.
     """
     symptoms = state["symptoms"]
-    retrieved:dict[str, list[dict]] = {}
+    retrieved: dict[str, list[dict]] = {}
 
     for symptom in symptoms:
-        results = retrieve(symptom)    
+        results = retrieve(symptom)
         retrieved[symptom] = results  # [] is meaningful: "no evidence for this symptom"
 
-    # NOTE: This builds a fresh dict each pass. When the Loop edges are wired, 
-    #   retrieved will need a LangGraph reducer (Annotated) so that gap-directed 
-    #   re-retrievals add to rather than overwrite prior results
+    # Loop-safety is handled by the merge_retrieved reducer on the state field,
+    # so a gap-directed re-retrieve replaces that symptom's entry rather than
+    # discarding results for symptoms not re-queried this pass.
     return {"retrieved": retrieved, "iterations": 1}
 
 
+# ── Node 3: Assess ───────────────────────────────────────────────────────
 
 def assess_node(state: DiagnosticState) -> dict:
     """
-    Cross-refrence retrieved incidents and judge sufficiency against state.
+    Cross-reference retrieved incidents and judge sufficiency against state.
 
-    Two jobs, kept seperate:
+    Two jobs, kept separate:
         - Job B (mechanical floor): every symptom must have non-empty evidence.
-            NO LLM. Un-hallucinatable
-        - Job A (LLM): ground cross-refrence prose - which symptoms converge on the same incidents,
-            which is cause vs effect. Always runs so findings is never empty into a capped-final Diagnose
+            No LLM. Un-hallucinatable.
+        - Job A (LLM): grounded cross-reference prose - which symptoms converge
+            on the same incidents, which is cause vs effect. Always runs so
+            findings is never empty into a capped-final Diagnose.
     """
     symptoms = state["symptoms"]
     retrieved = state["retrieved"]
@@ -146,7 +176,7 @@ def assess_node(state: DiagnosticState) -> dict:
         sufficient = True
         gap_reason = ""
 
-    # Job A: LLM cross-refrence
+    # Job A: LLM cross-reference
     # Grounded prompt: symptom -> incidents actually retrieved
     evidence_lines: list[str] = []
     for symptom in symptoms:
@@ -163,7 +193,7 @@ def assess_node(state: DiagnosticState) -> dict:
                 )
             evidence_lines.append(f"Symptom: {symptom}\n" + "\n".join(incident_summaries))
         else:
-            evidence_lines.append(f"Symptom: {symptom}\n (no incidents retrieved)")    
+            evidence_lines.append(f"Symptom: {symptom}\n (no incidents retrieved)")
 
     evidence_block = "\n\n".join(evidence_lines)
 
@@ -172,9 +202,9 @@ def assess_node(state: DiagnosticState) -> dict:
 
     ## Rules
     1. **Grounded only.** Reason only about the incidents listed below. Do not invent incidents or draw on general knowledge of outages.
-    2. **Cross-refrence.** For each symptom, note which past incident(s) match. Then ask: do multiple symptoms point at the same underlying
+    2. **Cross-reference.** For each symptom, note which past incident(s) match. Then ask: do multiple symptoms point at the same underlying
         incident? If so, which symptom is likely the root cause and which are downstream effects?
-    3. **Be concise.** A short paragraph of finfings is enough. No preamble, no conclusion
+    3. **Be concise.** A short paragraph of findings is enough. No preamble, no conclusion.
 
     ## Original Incident Description
     {state['original_query']}
@@ -185,15 +215,15 @@ def assess_node(state: DiagnosticState) -> dict:
 
     ## Findings
 
-"""  
-    
+"""
+
     raw_findings = call_llm(prompt)
-    findings = re.sub(r"<think>.*?</think>", "", raw_findings, flags=re.DOTALL).strip()
+    findings = strip_think(raw_findings)
 
-    return {"findings": findings, "sufficient": sufficient, "gap_reason":gap_reason}
+    return {"findings": findings, "sufficient": sufficient, "gap_reason": gap_reason}
 
 
-
+# ── Node 4: Diagnose ─────────────────────────────────────────────────────
 
 def diagnose_node(state: DiagnosticState) -> dict:
     """
@@ -205,17 +235,19 @@ def diagnose_node(state: DiagnosticState) -> dict:
     findings = state["findings"]
     retrieved = state["retrieved"]
 
-    # Building a set of valid incident IDs actually retrieved
+    # Build the set of incident IDs actually retrieved. This is the ground
+    # truth the model's citations are checked against - syntactic citation
+    # format is not enough, the integration run proved qwen3 will invent
+    # well-formed IDs that were never retrieved.
     valid_ids = set()
     for hits in retrieved.values():
         for h in hits:
             if doc_id := h.get("id"):
                 valid_ids.add(doc_id)
 
-    # Early exit: no real evidence -> should not ask the model to hallucinate
+    # Early exit: no real evidence -> do not ask the model to hallucinate
     if not valid_ids:
         return {"diagnosis": []}
-    
 
     evidence_lines: list[str] = []
     for symptom, hits in retrieved.items():
@@ -228,10 +260,10 @@ def diagnose_node(state: DiagnosticState) -> dict:
 
 
     ## Rules
-    1. ***Grounded only.** Every candidate root cause must be backed by a specific retrieved incident listed below. Do not 
+    1. **Grounded only.** Every candidate root cause must be backed by a specific retrieved incident listed below. Do not
     invent causes or draw on general knowledge.
     2. **Rank by evidence convergence.** A cause supported by multiple symptoms is higher confidence than one supported by a single symptom.
-    Confidence must reflect evidence strength, not your personal certainity.
+    Confidence must reflect evidence strength, not your personal certainty.
     3. **One candidate per line.** Format each as: CAUSE | EVIDENCE | CONFIDENCE
         - CAUSE: short description of the root cause candidate
         - EVIDENCE: the incident ID(s) that support it
@@ -239,7 +271,7 @@ def diagnose_node(state: DiagnosticState) -> dict:
     4. **No preamble, no conclusion.** Output only the ranked lines.
 
 
-    ## Findings from Cross-Refrence
+    ## Findings from Cross-Reference
     {findings}
 
     ## Available Retrieved Evidence
@@ -249,14 +281,14 @@ def diagnose_node(state: DiagnosticState) -> dict:
 
         """
     raw_response = call_llm(prompt)
-    cleaned = re.sub(r"<think>.*?</think>", "", raw_response, flags=re.DOTALL)
+    cleaned = strip_think(raw_response)
 
     diagnosis: list[dict] = []
     for line in cleaned.split("\n"):
         line = line.strip()
         if not line:
             continue
-        # Skip header echo — model sometimes repeats the format instruction
+        # Skip header echo - model sometimes repeats the format instruction
         if line.replace(" ", "").upper() == "CAUSE|EVIDENCE|CONFIDENCE":
             continue
         parts = [p.strip() for p in line.split("|")]
@@ -282,21 +314,26 @@ def diagnose_node(state: DiagnosticState) -> dict:
     # Hardened grounding: evidence must cite at least one real retrieved ID
     grounded: list[dict] = []
     for d in diagnosis:
-        
-        cited = {x.strip() for x in d["evidence"].replace("[", "").replace("]", "").split(",") if x.strip()}
-        if cited & valid_ids:  
+        cited = {
+            x.strip()
+            for x in d["evidence"].replace("[", "").replace("]", "").split(",")
+            if x.strip()
+        }
+        if cited & valid_ids:
             grounded.append(d)
         # else: hallucinated evidence, drop it
 
     return {"diagnosis": grounded}
-    
 
+
+# ── Graph ────────────────────────────────────────────────────────────────
 
 MAX_ITERATIONS = 3
 
+
 def route_after_assess(state: DiagnosticState) -> str:
     """
-    Hybrid termination: sufficient OR capped -> diagnose, else loop back
+    Hybrid termination: sufficient OR capped -> diagnose, else loop back.
     """
     if state["sufficient"] or state["iterations"] >= MAX_ITERATIONS:
         return "diagnose"
@@ -305,7 +342,7 @@ def route_after_assess(state: DiagnosticState) -> str:
 
 def build_diagnostic_graph():
     """
-    Assemble the four nodes into LangGraph with the conditional loop
+    Assemble the four nodes into a LangGraph StateGraph with the conditional loop.
     """
     builder = StateGraph(DiagnosticState)
 
@@ -321,14 +358,9 @@ def build_diagnostic_graph():
     builder.add_conditional_edges(
         "assess",
         route_after_assess,
-        {"retrieve": "retrieve", "diagnose": "diagnose"}
-        
-        )
-    
+        {"retrieve": "retrieve", "diagnose": "diagnose"},
+    )
+
     builder.add_edge("diagnose", END)
 
-    return builder.compile()               
-    
-
-
-
+    return builder.compile()
