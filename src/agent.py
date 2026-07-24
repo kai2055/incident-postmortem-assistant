@@ -336,7 +336,13 @@ def diagnose_node(state: DiagnosticState) -> dict:
                 "confidence": "unknown",
             })
 
-    # Hardened grounding: evidence must cite at least one real retrieved ID
+    # Hardened grounding, two stages:
+    #   1. drop any candidate with no real citation at all
+    #   2. for survivors, strip citations that were never retrieved
+    # The old version kept a candidate if ANY citation was real, but left the
+    # fabricated ones attached - one real id smuggled in any number of
+    # invented ones. Scoring caught this on L2-003, where a correct aws-s3
+    # cause also cited gitlab, which was never retrieved for that run.
     grounded: list[dict] = []
     for d in diagnosis:
         cited = {
@@ -344,9 +350,11 @@ def diagnose_node(state: DiagnosticState) -> dict:
             for x in d["evidence"].replace("[", "").replace("]", "").split(",")
             if x.strip()
         }
-        if cited & valid_ids:
-            grounded.append(d)
-        # else: hallucinated evidence, drop it
+        real = cited & valid_ids
+        if not real:
+            continue  # nothing grounds this candidate, drop it
+        d["evidence"] = ", ".join(sorted(real))  # keep only real citations
+        grounded.append(d)
 
     return {"diagnosis": grounded}
 

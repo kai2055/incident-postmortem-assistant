@@ -480,4 +480,21 @@ def test_route_insufficient_under_cap_loops():
     state["iterations"] = 1
     assert route_after_assess(state) == "retrieve"
 
+
+def test_diagnose_strips_partial_fabrication():
+    """
+    A candidate citing one real id AND one fabricated id keeps the real one
+    and loses the fake. The old filter passed the whole thing through because
+    it only checked that SOME citation was grounded.
+    """
+    state = create_state("Servers removed")
+    state["symptoms"] = ["too many servers removed"]
+    state["retrieved"] = {"too many servers removed": [{"id": "aws-s3-2017-02-28", "distance": 0.3}]}
+
+    with patch("src.agent.call_llm") as mock_llm:
+        mock_llm.return_value = "Operator error | aws-s3-2017-02-28, gitlab-2017-01-31 | high"
+        result = diagnose_node(state)
+
+    assert len(result["diagnosis"]) == 1
+    assert result["diagnosis"][0]["evidence"] == "aws-s3-2017-02-28"
     

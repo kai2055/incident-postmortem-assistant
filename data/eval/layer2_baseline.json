@@ -1,0 +1,732 @@
+{
+  "run_metadata": {
+    "generated_at": "2026-07-24T19:36:09.159126+00:00",
+    "suite": "data/eval/layer2_suite.json",
+    "entries_scored": 15,
+    "total_minutes": 16.4
+  },
+  "overall": {
+    "entries": 15,
+    "top1_accuracy": 0.625,
+    "top1_scored_on": 8,
+    "any_hit_rate": 0.615,
+    "noise_rate": 0.444,
+    "decline_rate": 1.0,
+    "decline_scored_on": 2,
+    "mean_candidates": 1.8,
+    "grounding_violations": 0,
+    "restatement_rate_heuristic": 0.0,
+    "mean_iterations": 2.2
+  },
+  "per_entry": [
+    {
+      "id": "L2-001",
+      "kind": "single",
+      "expected_docs": [
+        "cloudflare-waf-2019-07-02"
+      ],
+      "primary_root_cause": "cloudflare-waf-2019-07-02",
+      "candidate_count": 2,
+      "iterations": 1,
+      "sufficient": true,
+      "symptoms": [
+        "Servers handling incoming traffic started maxing out CPU",
+        "Everything started returning errors"
+      ],
+      "top1_correct": false,
+      "any_hit": false,
+      "noise_count": 2,
+      "grounding_violations": 0,
+      "restatements": 0,
+      "declined": false,
+      "candidates": [
+        {
+          "rank": 1,
+          "cause": "Consul streaming feature contention (Roblox 2021-10-28)",
+          "confidence": "high",
+          "docs": [
+            "roblox-2021-10-28"
+          ],
+          "hits_expected": false,
+          "hits_primary": false,
+          "ungrounded": false,
+          "symptom_overlap": 0.0,
+          "likely_restatement": false
+        },
+        {
+          "rank": 2,
+          "cause": "Cloudflare R2 credential deployment errors (2025-03-21)",
+          "confidence": "low",
+          "docs": [
+            "cloudflare-r2-2025-03-21"
+          ],
+          "hits_expected": false,
+          "hits_primary": false,
+          "ungrounded": false,
+          "symptom_overlap": 0.14,
+          "likely_restatement": false
+        }
+      ],
+      "seconds": 42.3
+    },
+    {
+      "id": "L2-002",
+      "kind": "single",
+      "expected_docs": [
+        "gitlab-2017-01-31"
+      ],
+      "primary_root_cause": "gitlab-2017-01-31",
+      "candidate_count": 1,
+      "iterations": 1,
+      "sufficient": true,
+      "symptoms": [
+        "main database disappeared"
+      ],
+      "top1_correct": true,
+      "any_hit": true,
+      "noise_count": 0,
+      "grounding_violations": 0,
+      "restatements": 0,
+      "declined": false,
+      "candidates": [
+        {
+          "rank": 1,
+          "cause": "Accidental command leading to permanent data loss",
+          "confidence": "high",
+          "docs": [
+            "gitlab-2017-01-31"
+          ],
+          "hits_expected": true,
+          "hits_primary": true,
+          "ungrounded": false,
+          "symptom_overlap": 0.0,
+          "likely_restatement": false
+        }
+      ],
+      "seconds": 25.7
+    },
+    {
+      "id": "L2-003",
+      "kind": "single",
+      "expected_docs": [
+        "aws-s3-2017-02-28"
+      ],
+      "primary_root_cause": "aws-s3-2017-02-28",
+      "candidate_count": 5,
+      "iterations": 1,
+      "sufficient": true,
+      "symptoms": [
+        "Way too many servers went away at once."
+      ],
+      "top1_correct": false,
+      "any_hit": false,
+      "noise_count": 5,
+      "grounding_violations": 0,
+      "restatements": 0,
+      "declined": false,
+      "candidates": [
+        {
+          "rank": 1,
+          "cause": "Operator error",
+          "confidence": "high",
+          "docs": [
+            "gitlab-2017-01-31"
+          ],
+          "hits_expected": false,
+          "hits_primary": false,
+          "ungrounded": false,
+          "symptom_overlap": 0.0,
+          "likely_restatement": false
+        },
+        {
+          "rank": 2,
+          "cause": "Configuration mismanagement",
+          "confidence": "medium",
+          "docs": [
+            "cloudflare-2025-11-18",
+            "cloudflare-thanksgiving-2023-11-23",
+            "cloudflare-waf-2019-07-02"
+          ],
+          "hits_expected": false,
+          "hits_primary": false,
+          "ungrounded": false,
+          "symptom_overlap": 0.0,
+          "likely_restatement": false
+        },
+        {
+          "rank": 3,
+          "cause": "Resource exhaustion",
+          "confidence": "medium",
+          "docs": [
+            "cloudflare-control-plane-2023-11-02",
+            "cloudflare-thanksgiving-2023-11-23"
+          ],
+          "hits_expected": false,
+          "hits_primary": false,
+          "ungrounded": false,
+          "symptom_overlap": 0.0,
+          "likely_restatement": false
+        },
+        {
+          "rank": 4,
+          "cause": "Automated scaling failure",
+          "confidence": "medium",
+          "docs": [
+            "roblox-2021-10-28"
+          ],
+          "hits_expected": false,
+          "hits_primary": false,
+          "ungrounded": false,
+          "symptom_overlap": 0.0,
+          "likely_restatement": false
+        },
+        {
+          "rank": 5,
+          "cause": "Network partitioning",
+          "confidence": "low",
+          "docs": [
+            "github-dns-2024-10-11"
+          ],
+          "hits_expected": false,
+          "hits_primary": false,
+          "ungrounded": false,
+          "symptom_overlap": 0.0,
+          "likely_restatement": false
+        }
+      ],
+      "seconds": 80.2
+    },
+    {
+      "id": "L2-004",
+      "kind": "single",
+      "expected_docs": [
+        "cloudflare-thanksgiving-2023-11-23"
+      ],
+      "primary_root_cause": "cloudflare-thanksgiving-2023-11-23",
+      "candidate_count": 1,
+      "iterations": 1,
+      "sufficient": true,
+      "symptoms": [
+        "Unauthorized access to systems using old login information from a breach"
+      ],
+      "top1_correct": true,
+      "any_hit": true,
+      "noise_count": 0,
+      "grounding_violations": 0,
+      "restatements": 0,
+      "declined": false,
+      "candidates": [
+        {
+          "rank": 1,
+          "cause": "Failure to rotate credentials exposed in October",
+          "confidence": "high",
+          "docs": [
+            "cloudflare-thanksgiving-2023-11-23"
+          ],
+          "hits_expected": true,
+          "hits_primary": true,
+          "ungrounded": false,
+          "symptom_overlap": 0.0,
+          "likely_restatement": false
+        }
+      ],
+      "seconds": 32.6
+    },
+    {
+      "id": "L2-005",
+      "kind": "single",
+      "expected_docs": [
+        "sentry-postgres-2015-07-20"
+      ],
+      "primary_root_cause": "sentry-postgres-2015-07-20",
+      "candidate_count": 2,
+      "iterations": 3,
+      "sufficient": false,
+      "symptoms": [
+        "Database locked itself to read-only",
+        "Restarts didn't help"
+      ],
+      "top1_correct": true,
+      "any_hit": true,
+      "noise_count": 1,
+      "grounding_violations": 0,
+      "restatements": 0,
+      "declined": false,
+      "candidates": [
+        {
+          "rank": 1,
+          "cause": "XID wraparound",
+          "confidence": "medium",
+          "docs": [
+            "sentry-postgres-2015-07-20"
+          ],
+          "hits_expected": true,
+          "hits_primary": true,
+          "ungrounded": false,
+          "symptom_overlap": 0.0,
+          "likely_restatement": false
+        },
+        {
+          "rank": 2,
+          "cause": "Operator error",
+          "confidence": "medium",
+          "docs": [
+            "aws-s3-2017-02-28"
+          ],
+          "hits_expected": false,
+          "hits_primary": false,
+          "ungrounded": false,
+          "symptom_overlap": 0.0,
+          "likely_restatement": false
+        }
+      ],
+      "seconds": 155.4
+    },
+    {
+      "id": "L2-006",
+      "kind": "single",
+      "expected_docs": [
+        "github-database-2018-10-21"
+      ],
+      "primary_root_cause": "github-database-2018-10-21",
+      "candidate_count": 3,
+      "iterations": 3,
+      "sufficient": false,
+      "symptoms": [
+        "Network dropped between our two sites for about 40 seconds",
+        "Database switched over to the backup on its own",
+        "Both sides have changes the other doesn't have"
+      ],
+      "top1_correct": true,
+      "any_hit": true,
+      "noise_count": 0,
+      "grounding_violations": 0,
+      "restatements": 0,
+      "declined": false,
+      "candidates": [
+        {
+          "rank": 1,
+          "cause": "Network partition causing split-brain and automatic database failover",
+          "confidence": "high",
+          "docs": [
+            "github-database-2018-10-21"
+          ],
+          "hits_expected": true,
+          "hits_primary": true,
+          "ungrounded": false,
+          "symptom_overlap": 0.08,
+          "likely_restatement": false
+        },
+        {
+          "rank": 2,
+          "cause": "Database failover due to network partition",
+          "confidence": "medium",
+          "docs": [
+            "github-database-2018-10-21"
+          ],
+          "hits_expected": true,
+          "hits_primary": true,
+          "ungrounded": false,
+          "symptom_overlap": 0.12,
+          "likely_restatement": false
+        },
+        {
+          "rank": 3,
+          "cause": "Data divergence from split-brain effect",
+          "confidence": "medium",
+          "docs": [
+            "github-database-2018-10-21"
+          ],
+          "hits_expected": true,
+          "hits_primary": true,
+          "ungrounded": false,
+          "symptom_overlap": 0.0,
+          "likely_restatement": false
+        }
+      ],
+      "seconds": 57.2
+    },
+    {
+      "id": "L2-007",
+      "kind": "single",
+      "expected_docs": [
+        "roblox-2021-10-28"
+      ],
+      "primary_root_cause": "roblox-2021-10-28",
+      "candidate_count": 5,
+      "iterations": 1,
+      "sufficient": true,
+      "symptoms": [
+        "service registry got sluggish",
+        "write operations started failing",
+        "the whole system fell apart"
+      ],
+      "top1_correct": false,
+      "any_hit": true,
+      "noise_count": 4,
+      "grounding_violations": 0,
+      "restatements": 0,
+      "declined": false,
+      "candidates": [
+        {
+          "rank": 1,
+          "cause": "PostgreSQL XID wraparound",
+          "confidence": "high",
+          "docs": [
+            "sentry-postgres-2015-07-20"
+          ],
+          "hits_expected": false,
+          "hits_primary": false,
+          "ungrounded": false,
+          "symptom_overlap": 0.0,
+          "likely_restatement": false
+        },
+        {
+          "rank": 2,
+          "cause": "AWS S3 service disruption",
+          "confidence": "medium",
+          "docs": [
+            "aws-s3-2017-02-28"
+          ],
+          "hits_expected": false,
+          "hits_primary": false,
+          "ungrounded": false,
+          "symptom_overlap": 0.17,
+          "likely_restatement": false
+        },
+        {
+          "rank": 3,
+          "cause": "Roblox service disruption",
+          "confidence": "medium",
+          "docs": [
+            "roblox-2021-10-28"
+          ],
+          "hits_expected": true,
+          "hits_primary": true,
+          "ungrounded": false,
+          "symptom_overlap": 0.17,
+          "likely_restatement": false
+        },
+        {
+          "rank": 4,
+          "cause": "Cloudflare Control Plane failure",
+          "confidence": "medium",
+          "docs": [
+            "cloudflare-control-plane-2023-11-02"
+          ],
+          "hits_expected": false,
+          "hits_primary": false,
+          "ungrounded": false,
+          "symptom_overlap": 0.0,
+          "likely_restatement": false
+        },
+        {
+          "rank": 5,
+          "cause": "GitHub database issue",
+          "confidence": "medium",
+          "docs": [
+            "github-database-2018-10-21"
+          ],
+          "hits_expected": false,
+          "hits_primary": false,
+          "ungrounded": false,
+          "symptom_overlap": 0.0,
+          "likely_restatement": false
+        }
+      ],
+      "seconds": 105.5
+    },
+    {
+      "id": "L2-008",
+      "kind": "multi",
+      "expected_docs": [
+        "cloudflare-2025-11-18",
+        "cloudflare-waf-2019-07-02"
+      ],
+      "primary_root_cause": null,
+      "candidate_count": 5,
+      "iterations": 3,
+      "sufficient": false,
+      "symptoms": [
+        "servers handling incoming traffic started maxing out CPU",
+        "servers dropping everything",
+        "settings file got pushed everywhere at once",
+        "broke the whole network"
+      ],
+      "top1_correct": null,
+      "any_hit": true,
+      "noise_count": 0,
+      "grounding_violations": 0,
+      "restatements": 0,
+      "declined": false,
+      "candidates": [
+        {
+          "rank": 1,
+          "cause": "Database access control change",
+          "confidence": "high",
+          "docs": [
+            "cloudflare-2025-11-18"
+          ],
+          "hits_expected": true,
+          "hits_primary": false,
+          "ungrounded": false,
+          "symptom_overlap": 0.0,
+          "likely_restatement": false
+        },
+        {
+          "rank": 2,
+          "cause": "Misconfigured Bot Management permissions",
+          "confidence": "medium",
+          "docs": [
+            "cloudflare-2025-11-18"
+          ],
+          "hits_expected": true,
+          "hits_primary": false,
+          "ungrounded": false,
+          "symptom_overlap": 0.0,
+          "likely_restatement": false
+        },
+        {
+          "rank": 3,
+          "cause": "Cascading failure from database access control",
+          "confidence": "medium",
+          "docs": [
+            "cloudflare-2025-11-18"
+          ],
+          "hits_expected": true,
+          "hits_primary": false,
+          "ungrounded": false,
+          "symptom_overlap": 0.0,
+          "likely_restatement": false
+        },
+        {
+          "rank": 4,
+          "cause": "Unintended global propagation of settings file",
+          "confidence": "medium",
+          "docs": [
+            "cloudflare-2025-11-18"
+          ],
+          "hits_expected": true,
+          "hits_primary": false,
+          "ungrounded": false,
+          "symptom_overlap": 0.22,
+          "likely_restatement": false
+        },
+        {
+          "rank": 5,
+          "cause": "Network overload from CPU exhaustion",
+          "confidence": "medium",
+          "docs": [
+            "cloudflare-2025-11-18"
+          ],
+          "hits_expected": true,
+          "hits_primary": false,
+          "ungrounded": false,
+          "symptom_overlap": 0.17,
+          "likely_restatement": false
+        }
+      ],
+      "seconds": 91.1
+    },
+    {
+      "id": "L2-009",
+      "kind": "multi",
+      "expected_docs": [
+        "aws-s3-2017-02-28",
+        "gitlab-2017-01-31"
+      ],
+      "primary_root_cause": null,
+      "candidate_count": 2,
+      "iterations": 1,
+      "sufficient": true,
+      "symptoms": [
+        "Main database deleted",
+        "Took down way more capacity than intended"
+      ],
+      "top1_correct": null,
+      "any_hit": true,
+      "noise_count": 0,
+      "grounding_violations": 0,
+      "restatements": 0,
+      "declined": false,
+      "candidates": [
+        {
+          "rank": 1,
+          "cause": "Accidental command execution (rm -rf) on primary database directory",
+          "confidence": "medium",
+          "docs": [
+            "gitlab-2017-01-31"
+          ],
+          "hits_expected": true,
+          "hits_primary": false,
+          "ungrounded": false,
+          "symptom_overlap": 0.12,
+          "likely_restatement": false
+        },
+        {
+          "rank": 2,
+          "cause": "Operator error during maintenance command input",
+          "confidence": "low",
+          "docs": [
+            "aws-s3-2017-02-28"
+          ],
+          "hits_expected": true,
+          "hits_primary": false,
+          "ungrounded": false,
+          "symptom_overlap": 0.0,
+          "likely_restatement": false
+        }
+      ],
+      "seconds": 88.8
+    },
+    {
+      "id": "L2-010",
+      "kind": "cause-effect",
+      "expected_docs": [
+        "crowdstrike-2024-07-19"
+      ],
+      "primary_root_cause": "crowdstrike-2024-07-19",
+      "candidate_count": 0,
+      "iterations": 3,
+      "sufficient": false,
+      "symptoms": [
+        "crashed",
+        "blue-screened"
+      ],
+      "top1_correct": null,
+      "any_hit": false,
+      "noise_count": 0,
+      "grounding_violations": 0,
+      "restatements": 0,
+      "declined": true,
+      "candidates": [],
+      "seconds": 26.8
+    },
+    {
+      "id": "L2-011",
+      "kind": "cause-effect",
+      "expected_docs": [
+        "cloudflare-r2-2025-03-21"
+      ],
+      "primary_root_cause": "cloudflare-r2-2025-03-21",
+      "candidate_count": 0,
+      "iterations": 3,
+      "sufficient": false,
+      "symptoms": [
+        "nothing can authenticate"
+      ],
+      "top1_correct": null,
+      "any_hit": false,
+      "noise_count": 0,
+      "grounding_violations": 0,
+      "restatements": 0,
+      "declined": true,
+      "candidates": [],
+      "seconds": 39.2
+    },
+    {
+      "id": "L2-012",
+      "kind": "partial",
+      "expected_docs": [
+        "cloudflare-thanksgiving-2023-11-23"
+      ],
+      "primary_root_cause": "cloudflare-thanksgiving-2023-11-23",
+      "candidate_count": 0,
+      "iterations": 3,
+      "sufficient": false,
+      "symptoms": [
+        "Nightly finance reports stopped generating",
+        "Numbers coming out are wrong"
+      ],
+      "top1_correct": null,
+      "any_hit": false,
+      "noise_count": 0,
+      "grounding_violations": 0,
+      "restatements": 0,
+      "declined": true,
+      "candidates": [],
+      "seconds": 46.8
+    },
+    {
+      "id": "L2-013",
+      "kind": "partial",
+      "expected_docs": [
+        "sentry-postgres-2015-07-20"
+      ],
+      "primary_root_cause": "sentry-postgres-2015-07-20",
+      "candidate_count": 1,
+      "iterations": 3,
+      "sufficient": false,
+      "symptoms": [
+        "database locked itself to read-only",
+        "some internal counter had hit a hard ceiling",
+        "office badge readers stopped working"
+      ],
+      "top1_correct": true,
+      "any_hit": true,
+      "noise_count": 0,
+      "grounding_violations": 0,
+      "restatements": 0,
+      "declined": false,
+      "candidates": [
+        {
+          "rank": 1,
+          "cause": "Postgres Transaction ID Wraparound",
+          "confidence": "high",
+          "docs": [
+            "sentry-postgres-2015-07-20"
+          ],
+          "hits_expected": true,
+          "hits_primary": true,
+          "ungrounded": false,
+          "symptom_overlap": 0.0,
+          "likely_restatement": false
+        }
+      ],
+      "seconds": 45.5
+    },
+    {
+      "id": "L2-014",
+      "kind": "no-match",
+      "expected_docs": [],
+      "primary_root_cause": null,
+      "candidate_count": 0,
+      "iterations": 3,
+      "sufficient": false,
+      "symptoms": [
+        "Nightly reports stopped generating",
+        "Last month's numbers are wrong"
+      ],
+      "top1_correct": null,
+      "any_hit": null,
+      "noise_count": 0,
+      "grounding_violations": 0,
+      "restatements": 0,
+      "declined": true,
+      "candidates": [],
+      "seconds": 41.0
+    },
+    {
+      "id": "L2-015",
+      "kind": "no-match",
+      "expected_docs": [],
+      "primary_root_cause": null,
+      "candidate_count": 0,
+      "iterations": 3,
+      "sufficient": false,
+      "symptoms": [
+        "air conditioning in the server room failed",
+        "a few machines shut themselves down from the heat",
+        "one of them hasn't come back up"
+      ],
+      "top1_correct": null,
+      "any_hit": null,
+      "noise_count": 0,
+      "grounding_violations": 0,
+      "restatements": 0,
+      "declined": true,
+      "candidates": [],
+      "seconds": 107.1
+    }
+  ]
+}
