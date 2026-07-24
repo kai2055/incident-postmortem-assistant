@@ -129,3 +129,7 @@ websockets==15.0.1
 xxhash==3.7.0
 yarl==1.24.2
 zstandard==0.25.0
+python-dotenv==1.2.2
+requests==2.34.2
+requests-oauthlib==2.0.0
+requests-toolbelt==1.0.0
