@@ -1,11 +1,15 @@
 """Tests for the vectorstore module: ChromaDB storage and search"""
 
+
+import pytest
+
 from src.ingestion import load_documents
 from src.chunking import chunk_documents
 from src.embedding import embed_chunks, embed_text, index_chunks
 from src.vectorstore import store_chunks, search, get_chroma_client,to_chroma_where, CHROMA_COLLECTION
 
 
+@pytest.mark.slow
 def test_store_and_search(temp_chroma, corpus_path):
     docs = load_documents(corpus_path)
     chunks = chunk_documents(docs)
@@ -20,6 +24,7 @@ def test_store_and_search(temp_chroma, corpus_path):
     assert results[0]["id"].startswith("cloudflare-r2-2025-03-21")
 
 
+@pytest.mark.slow
 def test_search_with_filter(temp_chroma, corpus_path):
     docs = load_documents(corpus_path)
     chunks = chunk_documents(docs)
@@ -36,6 +41,7 @@ def test_search_with_filter(temp_chroma, corpus_path):
 
 
 
+@pytest.mark.slow
 def test_idempotency(temp_chroma, corpus_path, expected_chunks):
     """
     Indexing twice doesn't duplicate chunks (stable ids + upsert)
@@ -59,7 +65,7 @@ def test_get_chroma_client_creates_directory(temp_chroma):
     assert client is not None
     assert temp_chroma.exists()
 
-
+@pytest.mark.slow
 def test_index_chunks_creates_collection(indexed_chunks):
     client = get_chroma_client()
     names = [c.name for c in client.list_collections()]
