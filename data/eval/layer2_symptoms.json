@@ -1,0 +1,176 @@
+{
+  "run_metadata": {
+    "generated_at": "2026-07-24T16:36:36.200237+00:00",
+    "suite": "data/eval/layer2_suite.json",
+    "count": 15
+  },
+  "entries": [
+    {
+      "id": "L2-001",
+      "kind": "single",
+      "description": "We pushed a new rule to our traffic filter, the servers handling incoming traffic started maxing out CPU, and everything started returning errors.",
+      "symptoms": [
+        "Servers handling incoming traffic started maxing out CPU",
+        "Everything started returning errors"
+      ],
+      "symptom_count": 2,
+      "seconds": 6.3
+    },
+    {
+      "id": "L2-002",
+      "kind": "single",
+      "description": "Someone was doing routine cleanup, ran a command in the wrong place, and the main database just disappeared.",
+      "symptoms": [
+        "main database disappeared"
+      ],
+      "symptom_count": 1,
+      "seconds": 6.9
+    },
+    {
+      "id": "L2-003",
+      "kind": "single",
+      "description": "An operator was taking a few servers out of service, put in the wrong number, and way too many went away at once.",
+      "symptoms": [
+        "Way too many servers went away at once."
+      ],
+      "symptom_count": 1,
+      "seconds": 17.6
+    },
+    {
+      "id": "L2-004",
+      "kind": "single",
+      "description": "We found someone had been in our systems for days using old login info from a breach we thought we cleaned up months ago.",
+      "symptoms": [
+        "Unauthorized access to systems using old login information from a breach"
+      ],
+      "symptom_count": 1,
+      "seconds": 16.5
+    },
+    {
+      "id": "L2-005",
+      "kind": "single",
+      "description": "Our database locked itself to read-only, restarts didn't help, and it turned out some internal counter had hit a hard ceiling.",
+      "symptoms": [
+        "Database locked itself to read-only",
+        "Restarts didn't help"
+      ],
+      "symptom_count": 2,
+      "seconds": 10.6
+    },
+    {
+      "id": "L2-006",
+      "kind": "single",
+      "description": "Network dropped between our two sites for about 40 seconds, the database switched over to the backup on its own, and now both sides have changes the other doesn't have.",
+      "symptoms": [
+        "Network dropped between our two sites for about 40 seconds",
+        "Database switched over to the backup on its own",
+        "Both sides have changes the other doesn't have"
+      ],
+      "symptom_count": 3,
+      "seconds": 12.4
+    },
+    {
+      "id": "L2-007",
+      "kind": "single",
+      "description": "Our service registry got sluggish, then write operations started failing, and the whole system fell apart like dominoes.",
+      "symptoms": [
+        "service registry got sluggish",
+        "write operations started failing",
+        "the whole system fell apart"
+      ],
+      "symptom_count": 3,
+      "seconds": 7.3
+    },
+    {
+      "id": "L2-008",
+      "kind": "multi",
+      "description": "We deployed a new traffic rule and the servers handling incoming traffic started maxing out CPU and dropping everything, and separately our settings file got pushed everywhere at once and broke the whole network.",
+      "symptoms": [
+        "servers handling incoming traffic started maxing out CPU",
+        "servers dropping everything",
+        "settings file got pushed everywhere at once",
+        "broke the whole network"
+      ],
+      "symptom_count": 4,
+      "seconds": 18.6
+    },
+    {
+      "id": "L2-009",
+      "kind": "multi",
+      "description": "An operator ran the wrong command during maintenance and deleted our main database, and in a separate incident someone put in the wrong parameter while removing servers and took down way more capacity than intended.",
+      "symptoms": [
+        "Main database deleted",
+        "Way more capacity than intended taken down"
+      ],
+      "symptom_count": 2,
+      "seconds": 11.8
+    },
+    {
+      "id": "L2-010",
+      "kind": "cause-effect",
+      "description": "We pushed a security update to all our Windows machines, and every single one of them crashed and blue-screened at the same time.",
+      "symptoms": [
+        "Crashed",
+        "Blue-screened"
+      ],
+      "symptom_count": 2,
+      "seconds": 8.2
+    },
+    {
+      "id": "L2-011",
+      "kind": "cause-effect",
+      "description": "We rotated our cloud storage keys following the playbook, and now nothing can authenticate even though we did everything right.",
+      "symptoms": [
+        "nothing can authenticate"
+      ],
+      "symptom_count": 1,
+      "seconds": 5.5
+    },
+    {
+      "id": "L2-012",
+      "kind": "partial",
+      "description": "We found someone had been in our systems for days using old login info, and our nightly finance reports stopped generating and the numbers coming out are wrong.",
+      "symptoms": [
+        "Nightly finance reports stopped generating",
+        "Numbers coming out are wrong"
+      ],
+      "symptom_count": 2,
+      "seconds": 25.1
+    },
+    {
+      "id": "L2-013",
+      "kind": "partial",
+      "description": "Our database locked itself to read-only and some internal counter had hit a hard ceiling, and the office badge readers stopped working so nobody could get into the building.",
+      "symptoms": [
+        "database locked itself to read-only",
+        "some internal counter had hit a hard ceiling",
+        "office badge readers stopped working"
+      ],
+      "symptom_count": 3,
+      "seconds": 8.1
+    },
+    {
+      "id": "L2-014",
+      "kind": "no-match",
+      "description": "Our nightly reports stopped generating, the finance team says last month's numbers are wrong, and nobody changed anything as far as we know.",
+      "symptoms": [
+        "Nightly reports stopped generating",
+        "Finance team says last month's numbers are wrong"
+      ],
+      "symptom_count": 2,
+      "seconds": 10.2
+    },
+    {
+      "id": "L2-015",
+      "kind": "no-match",
+      "description": "The air conditioning in the server room failed over the weekend, a few machines shut themselves down from the heat, and one of them hasn't come back up.",
+      "symptoms": [
+        "air conditioning failed",
+        "machines shut themselves down",
+        "one machine hasn't come back up"
+      ],
+      "symptom_count": 3,
+      "seconds": 7.2
+    }
+  ]
+}
