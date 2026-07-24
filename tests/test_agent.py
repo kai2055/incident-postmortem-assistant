@@ -9,6 +9,7 @@ from src.agent import (
     diagnose_node,
     route_after_assess,
     MAX_ITERATIONS,
+    LAYER2_THRESHOLD,
 )
 
 
@@ -228,10 +229,18 @@ def test_retrieve_node_normal():
     assert mock_retrieve.call_count == 2
 
 
-def test_retrieve_node_inherits_default_top_k():
+def test_retrieve_node_call_signature():
     """
-    top_k must NOT be passed. The node previously hardcoded 3, giving the
-    agent less evidence per symptom than a single Layer 1 query. See ADR-015.
+    Two decisions locked in here.
+
+    top_k is NOT passed - the node inherits DEFAULT_TOP_K. It previously
+    hardcoded 3, giving the agent less evidence per symptom than a single
+    Layer 1 query (ADR-015).
+
+    threshold IS passed - Layer 2 uses its own looser value. Decompose
+    produces symptom fragments scoring 0.32-0.41, while Layer 1's 0.30 was
+    tuned on complete questions at 0.20-0.27. Inheriting the default meant
+    every result was discarded and the agent started with no evidence.
     """
     state = create_state("API timeout")
     state["symptoms"] = ["API timeout"]
@@ -240,7 +249,7 @@ def test_retrieve_node_inherits_default_top_k():
         mock_retrieve.return_value = [{"id": "incident-a", "distance": 0.25}]
         retrieve_node(state)
 
-    mock_retrieve.assert_called_once_with("API timeout")
+    mock_retrieve.assert_called_once_with("API timeout", threshold=LAYER2_THRESHOLD)
 
 
 def test_retrieve_node_preserves_empty():

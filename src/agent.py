@@ -7,6 +7,14 @@ from src.generation import call_llm
 from src.embedding import retrieve  # Layer 1 retriever, calibrated to 0.30 threshold
 
 
+# Layer 2 uses a looser threshold than Layer 1.
+# Layer 1 queries are complete questions and score 0.20-0.27.
+# Decompose produces symptom fragments, which score 0.32-0.41 against the
+# same corpus - a fragment matches less of a chunk than a full description.
+# 0.30 discards everything. See ADR-017 for the sweep behind 0.36.
+LAYER2_THRESHOLD = 0.36
+
+
 # ── Helpers ──────────────────────────────────────────────────────────────
 
 def strip_think(text: str) -> str:
@@ -138,7 +146,7 @@ def retrieve_node(state: DiagnosticState) -> dict:
     retrieved: dict[str, list[dict]] = {}
 
     for symptom in symptoms:
-        results = retrieve(symptom)
+        results = retrieve(symptom, threshold=LAYER2_THRESHOLD)
         retrieved[symptom] = results  # [] is meaningful: "no evidence for this symptom"
 
     # Loop-safety is handled by the merge_retrieved reducer on the state field,
