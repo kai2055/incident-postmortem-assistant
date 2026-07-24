@@ -232,7 +232,6 @@ def assess_node(state: DiagnosticState) -> dict:
 
 
 # ── Node 4: Diagnose ─────────────────────────────────────────────────────
-
 def diagnose_node(state: DiagnosticState) -> dict:
     """
     Produce a grounded, ranked differential diagnosis.
@@ -240,6 +239,7 @@ def diagnose_node(state: DiagnosticState) -> dict:
     Every candidate cause must trace to a real retrieved incident.
     Confidence comes from evidence convergence, not the model's gut feeling.
     """
+    symptoms = state["symptoms"]
     findings = state["findings"]
     retrieved = state["retrieved"]
 
@@ -264,20 +264,37 @@ def diagnose_node(state: DiagnosticState) -> dict:
             evidence_lines.append(f"    {symptom}: {', '.join(doc_ids)}")
     evidence_block = "\n".join(evidence_lines) if evidence_lines else " (no evidence retrieved)"
 
+    # The symptom list is passed in explicitly so rule 2 is checkable. Without
+    # it the model was told not to restate symptoms it had never been shown,
+    # and it restated them anyway.
+    symptom_block = "\n".join(f"    - {s}" for s in symptoms) if symptoms else "    (none)"
+
     prompt = f"""You are a diagnostic assistant producing a final ranked differential diagnosis.
 
 
     ## Rules
     1. **Grounded only.** Every candidate root cause must be backed by a specific retrieved incident listed below. Do not
     invent causes or draw on general knowledge.
-    2. **Rank by evidence convergence.** A cause supported by multiple symptoms is higher confidence than one supported by a single symptom.
+
+    2. **A cause must explain the symptoms listed below, not restate them.**
+    Any candidate that paraphrases one of the reported symptoms is not a cause
+    - drop it. A cause is what made the symptom happen, and it must come from
+    a retrieved incident. Returning one well-supported cause is better than
+    padding the list.
+
+    3. **Rank by evidence convergence.** A cause supported by multiple symptoms is higher confidence than one supported by a single symptom.
     Confidence must reflect evidence strength, not your personal certainty.
-    3. **One candidate per line.** Format each as: CAUSE | EVIDENCE | CONFIDENCE
+
+    4. **One candidate per line.** Format each as: CAUSE | EVIDENCE | CONFIDENCE
         - CAUSE: short description of the root cause candidate
         - EVIDENCE: the incident ID(s) that support it
         - CONFIDENCE: high / medium / low (based on how many symptoms converge)
-    4. **No preamble, no conclusion.** Output only the ranked lines.
 
+    5. **No preamble, no conclusion.** Output only the ranked lines.
+
+
+    ## Symptoms Reported
+{symptom_block}
 
     ## Findings from Cross-Reference
     {findings}
