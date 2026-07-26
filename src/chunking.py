@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 """
 Chunking module for the RAG pipeline.
 
