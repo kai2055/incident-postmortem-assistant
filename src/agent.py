@@ -397,3 +397,34 @@ def build_diagnostic_graph():
     builder.add_edge("diagnose", END)
 
     return builder.compile()
+
+
+def build_diagnostic_graph_from_symptoms():
+    """Graph that starts at Retrieve, using symptoms already in state.
+
+    For reproducible evaluation: Decompose is the largest run-to-run noise
+    source, so eval freezes symptoms (see freeze_symptoms.py) and enters
+    here. Retrieve/Assess/Diagnose are unchanged.
+    """
+    builder = StateGraph(DiagnosticState)
+
+    builder.add_node("retrieve", retrieve_node)
+    builder.add_node("assess", assess_node)
+    builder.add_node("diagnose", diagnose_node)
+
+    builder.add_edge(START, "retrieve")
+    builder.add_edge("retrieve", "assess")
+    builder.add_conditional_edges(
+        "assess",
+        route_after_assess,
+        {"retrieve": "retrieve", "diagnose": "diagnose"},
+    )
+    builder.add_edge("diagnose", END)
+
+    return builder.compile()
+
+
+def create_state_with_symptoms(original_query: str, symptoms: list[str]) -> DiagnosticState:
+    state = create_state(original_query)
+    state["symptoms"] = symptoms
+    return state

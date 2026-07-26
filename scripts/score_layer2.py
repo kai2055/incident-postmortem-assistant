@@ -40,7 +40,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-from src.agent import build_diagnostic_graph, create_state
+from src.agent import build_diagnostic_graph, create_state, build_diagnostic_graph_from_symptoms, create_state_with_symptoms
 
 SUITE_PATH = Path("data/eval/layer2_suite.json")
 OUT_PATH = Path("data/eval/layer2_baseline.json")
@@ -235,6 +235,45 @@ def run_suite(suite: list[dict], graph, out_path: Path, suite_path: Path) -> lis
         scored = score_entry(q, final)
         scored["seconds"] = round(elapsed, 1)
         results[q["id"]] = scored
+
+        save(out_path, results, suite_path, time.time() - start)
+
+        top = scored["candidates"][0]["cause"] if scored["candidates"] else "(declined)"
+        print(f"    {elapsed:.0f}s  {scored['candidate_count']} candidates  "
+              f"iters {scored['iterations']}")
+        print(f"    top: {top[:70]}")
+        if scored["top1_correct"] is False:
+            print(f"    expected: {scored['primary_root_cause']}")
+        print()
+
+    return [results[k] for k in sorted(results)]
+
+
+def run_suite_frozen(frozen: list[dict], suite: dict, graph,
+                     out_path: Path, suite_path: Path) -> list[dict]:
+    """Run each entry from FROZEN symptoms, skipping live Decompose.
+
+    For reproducible eval: Decompose is the biggest run-to-run noise source,
+    so we enter the graph at Retrieve with symptoms already fixed. Scoring
+    still needs the suite's ground truth (expected_docs, primary_root_cause),
+    so `suite` is passed as an id->entry lookup.
+    """
+    results: dict[str, dict] = {}
+    start = time.time()
+
+    print(f"Scoring {len(frozen)} entries from frozen symptoms.\n")
+
+    for i, entry in enumerate(frozen, 1):
+        q = suite[entry["id"]]
+        print(f"[{i}/{len(frozen)}] {entry['id']} ({entry['kind']})")
+        t0 = time.time()
+        state = create_state_with_symptoms(entry["description"], entry["symptoms"])
+        final = graph.invoke(state)
+        elapsed = time.time() - t0
+
+        scored = score_entry(q, final)
+        scored["seconds"] = round(elapsed, 1)
+        results[entry["id"]] = scored
 
         save(out_path, results, suite_path, time.time() - start)
 
