@@ -1,6 +1,6 @@
 {
   "run_metadata": {
-    "timestamp": "2026-07-23T19:03:14.842993+00:00",
+    "timestamp": "2026-07-26T12:48:37.115168+00:00",
     "top_k": 10,
     "threshold": 0.3
   },
@@ -10,9 +10,9 @@
       "threshold": 0.3,
       "total_queries": 31,
       "hit_rate": 1.0,
-      "mrr": 0.9492753623188406,
-      "section_accuracy": 0.43478260869565216,
-      "decline_rate": 0.6,
+      "mrr": 0.9513888888888888,
+      "section_accuracy": 0.4583333333333333,
+      "decline_rate": 0.5,
       "filter_precision": 1.0,
       "filter_recall": 1.0,
       "filter_exact_match_rate": 1.0
@@ -29,9 +29,9 @@
         "mrr": 1.0
       },
       "hard": {
-        "count": 6,
+        "count": 7,
         "hit_rate": 1.0,
-        "mrr": 0.8055555555555556
+        "mrr": 0.8333333333333334
       }
     },
     "retrieval_results": [
@@ -76,11 +76,11 @@
           "github-dns-2024-10-11",
           "github-auth-2026-02-17",
           "github-database-2018-10-21",
+          "github-auditlog-2026-04-01",
           "gitlab-2017-01-31",
           "github-dns-2024-10-11",
           "github-auth-2026-02-17",
-          "github-auth-2026-02-17",
-          "github-dns-2024-10-11"
+          "github-pages-dns-2026-04-13"
         ],
         "hit": true,
         "reciprocal_rank": 1.0,
@@ -97,11 +97,11 @@
           "cloudflare-waf-2019-07-02",
           "cloudflare-thanksgiving-2023-11-23",
           "cloudflare-r2-2025-03-21",
+          "cloudflare-route-leak-2026-01-22",
           "cloudflare-control-plane-2023-11-02",
           "cloudflare-waf-2019-07-02",
           "cloudflare-thanksgiving-2023-11-23",
-          "cloudflare-bgp-2019-06-24",
-          "cloudflare-control-plane-2023-11-02"
+          "cloudflare-bgp-2019-06-24"
         ],
         "hit": true,
         "reciprocal_rank": 1.0,
@@ -126,9 +126,12 @@
         "expected_doc_id": "cloudflare-r2-2025-03-21",
         "retrieved_doc_ids": [
           "cloudflare-r2-2025-03-21",
+          "github-auditlog-2026-04-01",
           "cloudflare-2025-11-18",
+          "github-auditlog-2026-04-01",
           "cloudflare-r2-2025-03-21",
           "cloudflare-thanksgiving-2023-11-23",
+          "github-auditlog-2026-04-01",
           "github-auth-2026-02-17",
           "github-auth-2026-02-17"
         ],
@@ -174,10 +177,12 @@
           "cloudflare-thanksgiving-2023-11-23",
           "cloudflare-thanksgiving-2023-11-23",
           "cloudflare-r2-2025-03-21",
+          "github-auditlog-2026-04-01",
+          "cloudflare-r2-2025-03-21",
+          "github-auditlog-2026-04-01",
           "cloudflare-r2-2025-03-21",
           "cloudflare-r2-2025-03-21",
-          "cloudflare-r2-2025-03-21",
-          "tanstack-npm-2026-05-11"
+          "github-auditlog-2026-04-01"
         ],
         "hit": true,
         "reciprocal_rank": 1.0,
@@ -273,13 +278,13 @@
           "github-dns-2024-10-11",
           "github-dns-2024-10-11",
           "github-dns-2024-10-11",
+          "github-pages-dns-2026-04-13",
           "github-dns-2024-10-11",
+          "github-pages-dns-2026-04-13",
           "github-database-2018-10-21",
           "roblox-2021-10-28",
-          "cloudflare-2025-11-18",
-          "github-database-2018-10-21",
-          "cloudflare-2025-11-18",
-          "gitlab-2017-01-31"
+          "github-pages-dns-2026-04-13",
+          "cloudflare-2025-11-18"
         ],
         "hit": true,
         "reciprocal_rank": 1.0,
@@ -313,6 +318,7 @@
         "expected_doc_id": "aws-s3-2017-02-28",
         "retrieved_doc_ids": [
           "aws-s3-2017-02-28",
+          "github-pages-dns-2026-04-13",
           "gitlab-2017-01-31",
           "cloudflare-2025-11-18",
           "github-dns-2024-10-11",
@@ -320,8 +326,7 @@
           "cloudflare-r2-2025-03-21",
           "github-dns-2024-10-11",
           "roblox-2021-10-28",
-          "github-database-2018-10-21",
-          "cloudflare-thanksgiving-2023-11-23"
+          "github-database-2018-10-21"
         ],
         "hit": true,
         "reciprocal_rank": 1.0,
@@ -336,6 +341,7 @@
           "tanstack-npm-2026-05-11",
           "tanstack-npm-2026-05-11",
           "tanstack-npm-2026-05-11",
+          "codecov-2021-04-01",
           "tanstack-npm-2026-05-11"
         ],
         "hit": true,
@@ -352,7 +358,8 @@
           "cloudflare-2025-11-18",
           "cloudflare-2025-11-18",
           "cloudflare-waf-2019-07-02",
-          "cloudflare-bgp-2019-06-24"
+          "cloudflare-bgp-2019-06-24",
+          "cloudflare-route-leak-2026-01-22"
         ],
         "hit": true,
         "reciprocal_rank": 0.5,
@@ -411,9 +418,9 @@
           "sentry-postgres-2015-07-20",
           "github-database-2018-10-21",
           "roblox-2021-10-28",
+          "github-pages-dns-2026-04-13",
           "sentry-postgres-2015-07-20",
-          "cloudflare-2025-11-18",
-          "sentry-postgres-2015-07-20"
+          "cloudflare-2025-11-18"
         ],
         "hit": true,
         "reciprocal_rank": 0.3333333333333333,
@@ -454,7 +461,21 @@
           "tanstack-npm-2026-05-11",
           "sentry-postgres-2015-07-20",
           "cloudflare-r2-2025-03-21",
+          "github-auditlog-2026-04-01",
           "cloudflare-r2-2025-03-21"
+        ],
+        "hit": true,
+        "reciprocal_rank": 1.0,
+        "section_hit": true
+      },
+      {
+        "mode": "retrieval",
+        "difficulty": "hard",
+        "query": "Container image registry was compromised through a malicious base image from an upstream vendor.",
+        "expected_doc_id": "codecov-2021-04-01",
+        "retrieved_doc_ids": [
+          "codecov-2021-04-01",
+          "codecov-2021-04-01"
         ],
         "hit": true,
         "reciprocal_rank": 1.0,
@@ -490,7 +511,8 @@
           "cloudflare-control-plane-2023-11-02",
           "cloudflare-control-plane-2023-11-02",
           "cloudflare-bgp-2019-06-24",
-          "roblox-2021-10-28"
+          "roblox-2021-10-28",
+          "github-auditlog-2026-04-01"
         ]
       },
       {
@@ -503,13 +525,6 @@
           "github-auth-2026-02-17",
           "cloudflare-thanksgiving-2023-11-23"
         ]
-      },
-      {
-        "mode": "decline",
-        "difficulty": "no-match",
-        "query": "Container image registry was compromised through a malicious base image from an upstream vendor.",
-        "declined": true,
-        "leaked_doc_ids": []
       }
     ],
     "filter_results": [
@@ -521,9 +536,11 @@
         "recall": 1.0,
         "exact_match": true,
         "returned": [
+          "github-auditlog-2026-04-01",
           "github-auth-2026-02-17"
         ],
         "expected": [
+          "github-auditlog-2026-04-01",
           "github-auth-2026-02-17"
         ],
         "extra": [],

@@ -196,17 +196,17 @@
   },
   {
     "query": "Container image registry was compromised through a malicious base image from an upstream vendor.",
-    "expected_doc_id": null,
-    "expected_section": null,
-    "difficulty": "no-match",
-    "test_purpose": "Supply-chain-adjacent but no matching incident — should decline. Tests whether the system avoids matching to TanStack when the vector differs (base image vs. CI pipeline hijack)."
+    "expected_doc_id": "codecov-2021-04-01",
+    "expected_section": "root_cause",
+    "difficulty": "hard",
+    "test_purpose": "Symptom: distributed artifact tampered via compromised Docker image / registry. Must match codecov (image-layer compromise), NOT tanstack (CI-pipeline hijack) — tests discrimination within supply-chain by attack vector. Reclassified from no-match: was unanswerable against the 15-doc corpus before codecov was added."
   },
   {
     "query_intent": "minor severity incidents",
     "filter": {"severity": "minor"},
-    "expected_doc_ids": ["github-auth-2026-02-17"],
+    "expected_doc_ids": ["github-auth-2026-02-17", "github-auditlog-2026-04-01"],
     "difficulty": "filter",
-    "test_purpose": "Metadata filter: severity=minor should return exactly 1 result. Tests whether the filter correctly narrows the corpus."
+    "test_purpose": "Metadata filter: severity=minor should return exactly 2 results. Tests whether the filter correctly narrows the corpus."
   },
   {
     "query_intent": "configuration error incidents at Cloudflare",
