@@ -19,3 +19,4 @@ Thumbs.db
 
 
 data/chromadb/
+data/eval/current_*.json
