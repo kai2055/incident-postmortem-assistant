@@ -39,3 +39,8 @@ jobs:
 
       - name: Validate committed baselines
         run: python -m scripts.validate_baselines
+
+      - name: Lint with ruff
+        run: |
+          pip install ruff
+          ruff check .
