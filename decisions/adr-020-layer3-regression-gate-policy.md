@@ -7,6 +7,12 @@
 
 ---
 
+> **Note (baseline rebuild):** the Layer 2 reference numbers quoted in this ADR
+> (top1 0.625, any-hit 0.615, noise 0.444) predate the frozen-symptoms baseline
+> rebuild. Current frozen baseline: top1 0.667 (of 6), any-hit 0.538, noise 0.471,
+> decline 1.000, grounding 0. The *classification and reasoning are unchanged*;
+> only the reference values moved. Provisional until averaged across N frozen runs.
+
 ## Context
 
 Layer 3 is the evaluation agent. It runs in CI on every push, re-runs the
@@ -61,7 +67,7 @@ a graveyard.
 | Noise rate | 2 | 0.444 | **Report-only** | Baseline is bad, noise is concentrated in 2 of 15 entries, sample is tiny. No stable floor exists yet. |
 | Mean candidates | 2 | 1.80 | **Report-only** | Cost/behaviour signal, not correctness. Watch, don't block. |
 | Mean iterations | 2 | 2.20 | **Report-only** | Cost/behaviour signal, not correctness. Watch, don't block. |
-| Section accuracy | 1 | 0.500 | **OPEN — decide below** | Neither clearly good nor clearly bad. Needs a call. |
+| Section accuracy | 1 | 0.500 | **Report-only** | Stable and structural, not noisy; moves only on deliberate chunking/corpus/query changes, which are design decisions not regressions. |
 
 ---
 
@@ -152,23 +158,34 @@ aggregates become gate-able and can graduate out of report-only.
 
 ---
 
-## OPEN DECISION — section accuracy (0.500)
 
-Section accuracy sits at exactly 0.500 — the correct section is identified half
-the time. Unlike hit rate (perfect → hard) or noise rate (bad + concentrated +
-tiny → report-only), it is genuinely ambiguous:
 
-- Argument for **report-only:** 0.500 is a middling baseline. Gating "don't get
-  worse than half-right" locks in mediocrity, same objection as noise rate. If
-  it's a known-weak sub-metric with a fix pending, watch it, don't block.
-- Argument for **soft threshold:** unlike noise rate, it is *not* concentrated in
-  a couple of outliers and it's on the full 39-query suite, so it may have a
-  real noise band and be genuinely gate-able. A large unexplained drop from 0.5
-  could be a real regression worth catching.
+## Section accuracy (0.500) — RESOLVED: report-only
 
-**Decision needed:** does section accuracy behave like MRR (distributed, full
-suite, has a noise band → soft) or like noise rate (unstable, not worth gating
-yet → report-only)? Resolve before this ADR is marked final.
+Section accuracy is **report-only**, but for a different reason than the other
+report-only metrics.
+
+Noise rate is report-only because it is *too unstable to gate* — bad baseline,
+concentrated in two outliers, tiny sample. Section accuracy is the opposite: it
+is **stable and structural**. It measured exactly 0.500 in both the original
+baseline and the frozen rebuild, and the per-query `section_hit` pattern is not
+random — it is a fixed property of which query phrasings match which sections
+under the current corpus and chunking. Factual "what caused X" queries match the
+Summary section; specific symptom-style queries match the expected section. Same
+suite against the same store reproduces 0.500.
+
+Because it is structural, the only things that move it are **deliberate** design
+changes — re-chunking, changing corpus sections, or rewording queries. Those are
+not regressions to block; they are changes a human makes on purpose and would
+want to review, not have CI reject. Gating it would fire on intentional work, not
+on breakage. And there is no good value to protect: a soft threshold guards a
+strong metric from drifting down within noise, but section accuracy is a mediocre
+value sitting still, not a good one at risk.
+
+So: **report-only. Logged every run, never blocks.** A future refinement, if it
+ever proves useful, is a report-with-alert — flag loudly (not block) if it drops
+sharply, e.g. more than ~0.15, since a cliff would signal an unexpected structural
+change in chunking or sections. Not built now; it has never moved.
 
 ---
 
