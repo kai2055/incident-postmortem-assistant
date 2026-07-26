@@ -17,7 +17,7 @@ def corpus_path():
 
 @pytest.fixture(scope="session")
 def expected_chunks():
-    return 82
+    return 107
 
 
 @pytest.fixture(scope="session")
