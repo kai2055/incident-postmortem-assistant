@@ -1,0 +1,39 @@
+name: Layer 3 Gate
+
+on:
+  push:
+    paths:
+      - 'src/**'
+      - 'corpus/**'
+      - 'data/eval/**'
+      - 'tests/**'
+      - '.github/workflows/layer3-gate.yml'
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'corpus/**'
+      - 'data/eval/**'
+      - 'tests/**'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run fast test suite (mocked, no Ollama)
+        run: pytest -m "not slow and not integration"
+
+      - name: Validate committed baselines
+        run: python -m scripts.validate_baselines
