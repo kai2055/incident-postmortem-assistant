@@ -48,8 +48,8 @@ def test_generate_answer_shape():
         {"text": "test chunk", "metadata": {"company": "Cloudflare", "date": "2025-03-21", "section": "summary"}},
     ]
 
-    with patch("src.generation.ollama.generate") as mock_ollama:
-        mock_ollama.return_value = {"response": "The answer is [1]."}
+    with patch("src.generation.call_llm") as mock_llm:
+        mock_llm.return_value = "The answer is [1]."
         result = generate_answer("What happened", fake_results)
 
     assert "answer" in result
