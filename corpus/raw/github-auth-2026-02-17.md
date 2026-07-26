@@ -9,7 +9,7 @@ affected_services:
   - GitHub Actions
   - Git operations (SSH read)
   - GitHub App server-to-server tokens
-root_cause_category: credential-auth
+root_cause_category: database-storage
 ---
 
 ## Summary
