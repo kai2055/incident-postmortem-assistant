@@ -7,6 +7,8 @@ on:
       - 'corpus/**'
       - 'data/eval/**'
       - 'tests/**'
+      - 'scripts/**'
+      - 'pytest.ini'
       - '.github/workflows/layer3-gate.yml'
   pull_request:
     paths:
