@@ -12,13 +12,13 @@ from src.embedding import embed_text,embed_chunks, retrieve
 
 
 
-
+@pytest.mark.slow
 def test_vector_dimension():
     vector = embed_text("test text", "search_document:")
     assert len(vector) == 768
     assert all(isinstance(x, float) for x in vector)
 
-
+@pytest.mark.slow
 def test_vector_count_matches_chunk_count(corpus_path):
     docs = load_documents(corpus_path)
     chunks = chunk_documents(docs)
@@ -26,7 +26,7 @@ def test_vector_count_matches_chunk_count(corpus_path):
     chunks_with_vectors = embed_chunks(sample)
     assert len(chunks_with_vectors) == len(sample)
 
-
+@pytest.mark.slow
 def test_vector_contains_floats(corpus_path):
     docs = load_documents(corpus_path)
     chunks = chunk_documents(docs)
@@ -34,6 +34,8 @@ def test_vector_contains_floats(corpus_path):
     vector = chunks_with_vectors[0][1]
     assert all(isinstance(x, float) for x in vector)
 
+    
+@pytest.mark.slow
 def test_embedding_is_consistent():
     text = "This is a test sentence by Nikhil"
     vector1 = embed_text(text, "search_document:")
