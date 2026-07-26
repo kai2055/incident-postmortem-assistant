@@ -23,8 +23,8 @@ import argparse
 import json
 from pathlib import Path
 
-from src.embedding import retrieve, DEFAULT_TOP_K
 from src.agent import LAYER2_THRESHOLD as RELEVANCE_THRESHOLD
+from src.embedding import DEFAULT_TOP_K, retrieve
 
 SUITE_PATH = Path("data/eval/layer2_suite.json")
 SYMPTOMS_PATH = Path("data/eval/layer2_symptoms.json")

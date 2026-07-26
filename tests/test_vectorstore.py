@@ -3,10 +3,16 @@
 
 import pytest
 
-from src.ingestion import load_documents
 from src.chunking import chunk_documents
 from src.embedding import embed_chunks, embed_text, index_chunks
-from src.vectorstore import store_chunks, search, get_chroma_client,to_chroma_where, CHROMA_COLLECTION
+from src.ingestion import load_documents
+from src.vectorstore import (
+    CHROMA_COLLECTION,
+    get_chroma_client,
+    search,
+    store_chunks,
+    to_chroma_where,
+)
 
 
 @pytest.mark.slow

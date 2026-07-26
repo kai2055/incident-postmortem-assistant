@@ -23,7 +23,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-from src.agent import decompose_node, create_state
+from src.agent import create_state, decompose_node
 
 SUITE_PATH = Path("data/eval/layer2_suite.json")
 OUT_PATH = Path("data/eval/layer2_symptoms.json")

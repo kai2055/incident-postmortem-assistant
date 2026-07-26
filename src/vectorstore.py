@@ -8,10 +8,9 @@ no dependency on embeding or Ollama
 
 """
 from pathlib import Path
-from typing import List, Tuple, Dict, Any, Optional
+from typing import Any
 
 import chromadb
-
 
 # Config
 
@@ -21,7 +20,7 @@ CHROMA_COLLECTION = "incidents"
 
 # client
 
-def get_chroma_client(persist_path: Optional[Path] = None) -> chromadb.PersistentClient:
+def get_chroma_client(persist_path: Path | None = None) -> chromadb.PersistentClient:
     if persist_path is None:
         persist_path = CHROMA_PATH
     persist_path.mkdir(parents=True, exist_ok=True)
@@ -31,7 +30,7 @@ def get_chroma_client(persist_path: Optional[Path] = None) -> chromadb.Persisten
 # Storage
 
 def store_chunks(
-    chunks_with_vectors: List[Tuple[Any, List[float]]],
+    chunks_with_vectors: list[tuple[Any, list[float]]],
     collection_name: str = CHROMA_COLLECTION,
 ) -> None:
     client = get_chroma_client()
@@ -86,11 +85,11 @@ def to_chroma_where(filters: dict) -> dict | None:
 # Search
 
 def search(
-        query_vector: List[float],
+        query_vector: list[float],
         collection_name: str = CHROMA_COLLECTION,
         top_k: int = 5,
-        filter_metadata: Optional[Dict[str, Any]] = None,
-) -> List[Dict[str, Any]]:
+        filter_metadata: dict[str, Any] | None = None,
+) -> list[dict[str, Any]]:
     """
     Search ChromaDB using a pre-computed query vector.
 

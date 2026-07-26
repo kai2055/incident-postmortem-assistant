@@ -1,15 +1,11 @@
 
 from unittest.mock import patch
+
 import pytest
 
-
-
-from src.ingestion import load_documents
 from src.chunking import chunk_documents
-from src.embedding import embed_text,embed_chunks, retrieve
-
-
-
+from src.embedding import embed_chunks, embed_text, retrieve
+from src.ingestion import load_documents
 
 
 @pytest.mark.slow

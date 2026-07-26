@@ -1,13 +1,12 @@
 
 from unittest.mock import patch
 
-
 from src.evaluation import (
     hit_at_k,
     reciprocal_rank,
-    split_chunk_id,
-    score_retrieval_query,
     score_decline_query,
+    score_retrieval_query,
+    split_chunk_id,
 )
 
 

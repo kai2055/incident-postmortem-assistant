@@ -19,7 +19,7 @@ import argparse
 import json
 from pathlib import Path
 
-from src.embedding import retrieve, RELEVANCE_THRESHOLD
+from src.embedding import RELEVANCE_THRESHOLD, retrieve
 
 DEPTH = 15  # how far down the results we look
 

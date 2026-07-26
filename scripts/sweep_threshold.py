@@ -9,15 +9,13 @@ Usage:
     python scripts/sweep_threshold.py
 """
 
+import argparse
 import json
 from datetime import datetime, timezone
 from pathlib import Path
-import argparse
 
-
-from src.evaluation import evaluate_suite, load_queries
 from src.embedding import DEFAULT_TOP_K
-
+from src.evaluation import evaluate_suite, load_queries
 
 THRESHOLDS = [0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50]
 OUTPUT_DIR = Path("data/eval")

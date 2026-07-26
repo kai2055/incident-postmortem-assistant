@@ -1,11 +1,9 @@
 """Tests for the ingetsion module using the real corpus."""
 
-import pytest
-from pathlib import Path
 from datetime import date
+from pathlib import Path
 
-from src.ingestion import load_documents, Document
-
+from src.ingestion import Document, load_documents
 
 CORPUS_PATH = Path(__file__).parent.parent / "corpus" / "raw"
 
@@ -40,9 +38,8 @@ def test_metadata_values_not_empty():
                 assert len(value) > 0
                 for service in value:
                     assert service != ""
-                else:
-                    assert value is not None
-                    assert str(value).strip() != ""
+                assert value is not None
+                assert str(value).strip() != ""
 
 
 def test_text_not_empty():

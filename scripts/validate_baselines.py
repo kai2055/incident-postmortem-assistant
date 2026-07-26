@@ -12,8 +12,12 @@ import sys
 from pathlib import Path
 
 from scripts.compare_layer3 import (
-    load_layer1, load_layer2, diff_aggregates, diff_per_entry,
-    LAYER1_METRICS, LAYER2_METRICS,
+    LAYER1_METRICS,
+    LAYER2_METRICS,
+    diff_aggregates,
+    diff_per_entry,
+    load_layer1,
+    load_layer2,
 )
 from scripts.gate_layer3 import run_gate
 

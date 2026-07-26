@@ -1,11 +1,11 @@
-from typing import TypedDict, Annotated
-import re
 import operator
+import re
+from typing import Annotated, TypedDict
 
-from langgraph.graph import StateGraph, START, END
-from src.generation import call_llm
+from langgraph.graph import END, START, StateGraph
+
 from src.embedding import retrieve  # Layer 1 retriever, calibrated to 0.30 threshold
-
+from src.generation import call_llm
 
 # Layer 2 uses a looser threshold than Layer 1.
 # Layer 1 queries are complete questions and score 0.20-0.27.

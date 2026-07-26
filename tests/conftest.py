@@ -1,14 +1,15 @@
 """
 Shared fixtures and constants for all tests.
 """
-import pytest
-import tempfile
 import shutil
+import tempfile
 from pathlib import Path
 
-from src.ingestion import load_documents
+import pytest
+
 from src.chunking import chunk_documents
 from src.embedding import index_chunks
+from src.ingestion import load_documents
 
 
 @pytest.fixture(scope="session")

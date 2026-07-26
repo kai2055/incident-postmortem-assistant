@@ -1,8 +1,7 @@
 
-import pytest
 from pathlib import Path
 
-from src.chunking import chunk_documents, Chunk
+from src.chunking import Chunk, chunk_documents
 from src.ingestion import load_documents
 
 CORPUS_PATH = Path(__file__).parent.parent / "corpus" / "raw"

@@ -1,12 +1,12 @@
 from unittest.mock import patch
-from src.generation import(
-    _prettify_section,
-    _build_sources,
-    generate_answer,
-    answer_query,
-    NO_MATCH_MESSAGE,
-)
 
+from src.generation import (
+    NO_MATCH_MESSAGE,
+    _build_sources,
+    _prettify_section,
+    answer_query,
+    generate_answer,
+)
 
 
 def test_prettify_section():

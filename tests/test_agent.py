@@ -1,17 +1,16 @@
 from unittest.mock import patch
 
 from src.agent import (
-    strip_think,
+    LAYER2_THRESHOLD,
+    MAX_ITERATIONS,
+    assess_node,
     create_state,
     decompose_node,
-    retrieve_node,
-    assess_node,
     diagnose_node,
+    retrieve_node,
     route_after_assess,
-    MAX_ITERATIONS,
-    LAYER2_THRESHOLD,
+    strip_think,
 )
-
 
 # ── strip_think helper ───────────────────────────────────────────────────
 

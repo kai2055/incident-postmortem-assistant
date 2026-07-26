@@ -1,6 +1,7 @@
 import sys
+
 sys.path.insert(0, ".")
-from src.embedding import retrieve, RELEVANCE_THRESHOLD
+from src.embedding import RELEVANCE_THRESHOLD, retrieve
 
 symptoms = [
     "API started returning 503s",

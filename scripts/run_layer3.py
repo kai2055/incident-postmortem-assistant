@@ -16,10 +16,11 @@ import sys
 import time
 from pathlib import Path
 
-from src.embedding import RELEVANCE_THRESHOLD, DEFAULT_TOP_K
-from src.evaluation import evaluate_suite, load_queries, save_results
+from scripts.score_layer2 import run_suite_frozen
+from scripts.score_layer2 import save as save_layer2
 from src.agent import build_diagnostic_graph_from_symptoms
-from scripts.score_layer2 import run_suite_frozen, save as save_layer2
+from src.embedding import DEFAULT_TOP_K, RELEVANCE_THRESHOLD
+from src.evaluation import evaluate_suite, load_queries, save_results
 
 # Current-run outputs — mirror the baseline shapes, different filenames.
 LAYER1_OUT = Path("data/eval/current_layer1.json")

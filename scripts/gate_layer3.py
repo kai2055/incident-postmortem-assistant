@@ -9,6 +9,7 @@ exit code so every check stays unit-testable without a process exit.
 
 import sys
 from pathlib import Path
+
 from scripts.compare_layer3 import compare
 
 BASELINE_L1 = Path("data/eval/baseline.json")

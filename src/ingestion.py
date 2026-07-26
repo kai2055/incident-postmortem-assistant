@@ -9,12 +9,10 @@ and returns structured Document objects for downstream processing.
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any
 
 import frontmatter
 import yaml
-
-
 
 
 @dataclass
@@ -24,11 +22,11 @@ class Document:
 
     """
     text: str   # The main body content of the document 
-    metadata: Dict[str, Any] = field(default_factory=dict)  # Metadata from YAML frontmatter 
+    metadata: dict[str, Any] = field(default_factory=dict)  # Metadata from YAML frontmatter 
 
 
 
-def load_documents(corpus_path: Path) -> List[Document]:
+def load_documents(corpus_path: Path) -> list[Document]:
     """
     Load all markdown files with YAML frontmatter from a directory.
 

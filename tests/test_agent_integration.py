@@ -1,4 +1,5 @@
 import pytest
+
 from src.agent import build_diagnostic_graph, create_state
 
 

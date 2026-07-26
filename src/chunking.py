@@ -8,7 +8,7 @@ preserving metadata for traceability and filtering.
 
 import re
 from dataclasses import dataclass, field
-from typing import List, Dict, Any, Tuple
+from typing import Any
 
 from src.ingestion import Document
 
@@ -22,13 +22,13 @@ class Chunk:
     enabling traceability and structured filtering in ChromaDB.
     """
     text: str
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 def chunk_documents(
-    documents: List[Document],
+    documents: list[Document],
     max_chunk_size: int = 2000,
-) -> List[Chunk]:
+) -> list[Chunk]:
     """
     Split each document into sections and paragraphs, returning chunks.
 
@@ -65,8 +65,7 @@ def chunk_documents(
 
                 # Calculate available space for body (reserve header + 2 newlines)
                 body_limit = max_chunk_size - len(header) - 2
-                if body_limit < 100:
-                    body_limit = 100  # Minimum reasonable chunk size
+                body_limit = max(body_limit, 100)  # Minimum reasonable chunk size
 
                 paragraph_groups = _split_body_by_paragraphs(body, body_limit)
 
@@ -86,7 +85,7 @@ def chunk_documents(
     return chunks
 
 
-def _split_into_sections(text: str) -> List[Tuple[str, str]]:
+def _split_into_sections(text: str) -> list[tuple[str, str]]:
     """
     Split document by ## headings.
 
@@ -121,7 +120,7 @@ def _split_into_sections(text: str) -> List[Tuple[str, str]]:
     return sections
 
 
-def _extract_header_and_body(section_text: str) -> Tuple[str, str]:
+def _extract_header_and_body(section_text: str) -> tuple[str, str]:
     """
     Extract the section header (## ...) and the body content.
 
@@ -134,7 +133,7 @@ def _extract_header_and_body(section_text: str) -> Tuple[str, str]:
     return header, body
 
 
-def _split_body_by_paragraphs(body: str, max_chunk_size: int) -> List[str]:
+def _split_body_by_paragraphs(body: str, max_chunk_size: int) -> list[str]:
     """
     Split body content by paragraphs, each <= max_chunk_size.
 
@@ -173,11 +172,11 @@ def _normalize_section_name(header: str) -> str:
 
 
 def _build_chunk_metadata(
-    doc_metadata: Dict[str, Any],
+    doc_metadata: dict[str, Any],
     section: str,
     chunk_index: int,
     total_chunks: int,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Build metadata for a chunk from document metadata + chunking info."""
     return {
         "doc_id": doc_metadata.get("id"),
@@ -195,6 +194,7 @@ def _build_chunk_metadata(
 def main():
     """Test chunking by loading documents and printing chunk statistics."""
     from pathlib import Path
+
     from .ingestion import load_documents
 
     corpus_path = Path("corpus/raw")

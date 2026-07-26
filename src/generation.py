@@ -7,16 +7,14 @@ with a deterministic source list
 
 """
 
-from typing import List, Dict, Any, Optional
+import os
+from typing import Any
 
 import ollama
-import os
 import requests
 from dotenv import load_dotenv
 
-
 from src.embedding import retrieve
-
 
 NO_MATCH_MESSAGE = "I don't have a matching incident in the sources."
 
@@ -36,7 +34,7 @@ def _prettify_section(section: str) -> str:
     """Convert 'root_cause' to 'Root Cause' for display"""
     return section.replace("_", " ").title()
 
-def _build_sources(results: List[Dict[str, Any]]) -> tuple:
+def _build_sources(results: list[dict[str, Any]]) -> tuple:
     """
     Build the context block and source list from retrieved results.
 
@@ -123,7 +121,7 @@ def _build_prompt(question: str, context_block: str) -> str:
     cite the most relevant one.
     """
 
-def generate_answer(question: str, results: List[Dict[str, Any]]) -> Dict[str, Any]:
+def generate_answer(question: str, results: list[dict[str, Any]]) -> dict[str, Any]:
     """
     Generate an answer from the retrieved chunks.
 
@@ -157,9 +155,9 @@ def generate_answer(question: str, results: List[Dict[str, Any]]) -> Dict[str, A
 def answer_query(
     question: str,
     top_k: int = 5,
-    filter_metadata: Optional[Dict[str, Any]] = None,
+    filter_metadata: dict[str, Any] | None = None,
 
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Full RAG orchestrator: retrieve, then generate.
     If nothing relevant is retrieved, skip the model and return the no-match message.

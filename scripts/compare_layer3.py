@@ -9,8 +9,6 @@ only — the gate decides pass/fail.
 import json
 from pathlib import Path
 
-
-
 # The metrics the gate actually cares about, per layer. Denominators and
 # config keys are deliberately excluded — they're context, not diffed.
 LAYER1_METRICS = [

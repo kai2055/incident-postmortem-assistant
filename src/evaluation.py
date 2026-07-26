@@ -20,11 +20,10 @@ Three scoring modes dispatched by difficulty:
 
 import json
 import statistics
-from pathlib import Path
 from datetime import datetime, timezone
+from pathlib import Path
 
-from src.embedding import retrieve, RELEVANCE_THRESHOLD, DEFAULT_TOP_K
-
+from src.embedding import DEFAULT_TOP_K, RELEVANCE_THRESHOLD, retrieve
 
 QUERIES_PATH = Path("data/eval/query_suite.json")
 

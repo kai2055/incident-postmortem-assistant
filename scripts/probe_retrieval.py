@@ -1,9 +1,10 @@
 """Diagnostic: raw distances vs. what survives the threshold."""
 
 import sys
+
 sys.path.insert(0, ".")
 
-from src.embedding import retrieve, RELEVANCE_THRESHOLD
+from src.embedding import RELEVANCE_THRESHOLD, retrieve
 
 QUERY = "BGP route leak"
 

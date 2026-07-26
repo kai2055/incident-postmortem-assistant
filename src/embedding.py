@@ -8,13 +8,11 @@ embedding and vectorstore layers
 """
 
 from pathlib import Path
-from typing import List, Tuple, Any
 
 import ollama
 
 from src.chunking import Chunk
-from src.vectorstore import store_chunks, search, CHROMA_COLLECTION
-
+from src.vectorstore import CHROMA_COLLECTION, search, store_chunks
 
 # Configuration
 
@@ -27,7 +25,7 @@ DEFAULT_TOP_K = 10
 
 # Embedding
 
-def embed_text(text: str, prefix: str,) -> List[float]:
+def embed_text(text: str, prefix: str,) -> list[float]:
     """
     Embed a single text using Ollama with explicit prefix.
 
@@ -48,7 +46,7 @@ def embed_text(text: str, prefix: str,) -> List[float]:
 
 
 
-def embed_chunks(chunks: List[Chunk]) -> List[Tuple[Chunk, List[float]]]:
+def embed_chunks(chunks: list[Chunk]) -> list[tuple[Chunk, list[float]]]:
     """
     Embed a list of chunks.
 
@@ -76,7 +74,7 @@ def embed_chunks(chunks: List[Chunk]) -> List[Tuple[Chunk, List[float]]]:
 # Orchestrator
 
 def index_chunks(
-        chunks: List[Chunk],
+        chunks: list[Chunk],
         collection_name: str = CHROMA_COLLECTION,
 ) -> None:
     """
@@ -100,7 +98,7 @@ def retrieve(
     top_k: int = DEFAULT_TOP_K,
     filter_metadata: dict = None,
     threshold: float = RELEVANCE_THRESHOLD,
-) -> List[dict]:
+) -> list[dict]:
     """
     Retrieve relevant chunks for a query
 
@@ -147,8 +145,8 @@ def retrieve(
 
 def main():
     """Test the embedding module."""
-    from src.ingestion import load_documents
     from src.chunking import chunk_documents
+    from src.ingestion import load_documents
 
     corpus_path = Path("corpus/raw")
     print(f"Loading documents from: {corpus_path.absolute()}")
