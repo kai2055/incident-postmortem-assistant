@@ -92,7 +92,7 @@ def main():
                       f"survivors={survivors}  | {symptom[:55]}")
                 continue
 
-            verdict, rank, dist, doc = classify(results, expected, DEFAULT_TOP_K)
+            verdict, rank, dist, _doc = classify(results, expected, DEFAULT_TOP_K)
             tally[verdict] += 1
             if verdict == "PASS":
                 any_hit = True

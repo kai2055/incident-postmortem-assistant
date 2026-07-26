@@ -182,7 +182,7 @@ def answer_query(
     
     return generate_answer(question, results)
 
-def call_llm(prompt: str, model: str = None) -> str:
+def call_llm(prompt: str, model: str | None = None) -> str:
     """
     Send a prompt to the model and return the text response.
 

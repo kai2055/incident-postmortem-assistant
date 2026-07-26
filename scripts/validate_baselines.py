@@ -46,7 +46,7 @@ def main() -> None:
             "context": {},
         },
     }
-    passed, failures, flags, notes = run_gate(diff)
+    passed, failures, _flags, _notes = run_gate(diff)
 
     if not passed:
         print("BASELINE INVALID: gate fails on baseline-vs-baseline:")

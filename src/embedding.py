@@ -96,7 +96,7 @@ def retrieve(
     query: str,
     collection_name: str = CHROMA_COLLECTION,
     top_k: int = DEFAULT_TOP_K,
-    filter_metadata: dict = None,
+    filter_metadata: dict | None = None,
     threshold: float = RELEVANCE_THRESHOLD,
 ) -> list[dict]:
     """
