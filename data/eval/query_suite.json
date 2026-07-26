@@ -221,5 +221,67 @@
     "expected_doc_ids": ["roblox-2021-10-28", "github-database-2018-10-21"],
     "difficulty": "filter",
     "test_purpose": "Metadata filter: category=database-storage + severity=critical should return exactly 2 results. Tests whether combined filters work correctly."
+  },
+  {
+    "query": "What went wrong with the Codecov Bash Uploader in 2021?",
+    "expected_doc_id": "codecov-2021-04-01",
+    "expected_section": "root_cause",
+    "difficulty": "easy",
+    "test_purpose": "Natural question naming a known supply-chain incident. Basic document-level retrieval."
+  },
+  {
+    "query": "Attackers pulled a secret out of a published container image layer and used it to tamper with a script our CI downloads.",
+    "expected_doc_id": "codecov-2021-04-01",
+    "expected_section": "root_cause",
+    "difficulty": "hard",
+    "test_purpose": "Symptom: credential extracted from an image layer, distributed artifact tampered. Must match codecov (image-layer compromise), NOT tanstack (CI-pipeline hijack). Supply-chain discrimination by attack vector.",
+    "distractors": ["tanstack-npm-2026-05-11"]
+  },
+  {
+    "query": "A firewall rule change made outside our normal infrastructure pipeline blocked all legitimate traffic to our UI and builds.",
+    "expected_doc_id": "circleci-waf-2025-04-04",
+    "expected_section": "root_cause",
+    "difficulty": "medium",
+    "test_purpose": "Symptom: WAF rule applied outside IaC blocks legitimate traffic. Must match configuration-error incident without naming company or tool."
+  },
+  {
+    "query": "A firewall rule blocked all our traffic, and we were slow to find it because everyone assumed any change would have gone through our normal pipeline.",
+    "expected_doc_id": "circleci-waf-2025-04-04",
+    "expected_section": "root_cause",
+    "difficulty": "hard",
+    "test_purpose": "Symptom: WAF rule blocks traffic; diagnosis delayed by a false assumption changes go through IaC. Grounds the query in the actual failure, not only the investigation angle.",
+    "distractors": ["cloudflare-2025-11-18", "cloudflare-waf-2019-07-02"]
+  },
+  {
+    "query": "A failed credential rotation cut a service off from its backing database, causing intermittent errors until we recycled the environment.",
+    "expected_doc_id": "github-auditlog-2026-04-01",
+    "expected_section": "root_cause",
+    "difficulty": "medium",
+    "test_purpose": "Symptom: failed credential rotation severs service from datastore. Tests credential-auth retrieval; distinguishes from stale-credential intrusion incidents by mechanism.",
+    "distractors": ["cloudflare-thanksgiving-2023-11-23"]
+  },
+  {
+    "query": "An automated tool deleted a live production DNS record after its data source briefly stopped returning it, and the tool assumed the record was stale.",
+    "expected_doc_id": "github-pages-dns-2026-04-13",
+    "expected_section": "root_cause",
+    "difficulty": "medium",
+    "test_purpose": "Symptom: automation deletes a valid record on unreliable input. Tests agent-ai retrieval — the only query exercising this category on the mechanism."
+  },
+  {
+    "query": "Our hosted pages started throwing 500s that slowly got worse as caches expired, and it took nearly an hour to spot the cause.",
+    "expected_doc_id": "github-pages-dns-2026-04-13",
+    "expected_section": "summary",
+    "difficulty": "hard",
+    "test_purpose": "Symptom: gradual error escalation from cache expiry, slow detection. Tests agent-ai retrieval on the symptom angle rather than the automation mechanism.",
+    "distractors": ["github-dns-2024-10-11"]
+  },
+  {
+    "query": "A routing policy change accidentally advertised our internal routes to peers and providers, leaking traffic we should never have carried.",
+    "expected_doc_id": "cloudflare-route-leak-2026-01-22",
+    "expected_section": "root_cause",
+    "difficulty": "hard",
+    "test_purpose": "Symptom: internal prefixes leaked externally after a policy edit. Must match the 2026 route leak, NOT the 2019 BGP incident. Tests discrimination between two network-bgp incidents.",
+    "distractors": ["cloudflare-bgp-2019-06-24"]
   }
+
 ]

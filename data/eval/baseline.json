@@ -1,6 +1,6 @@
 {
   "run_metadata": {
-    "timestamp": "2026-07-26T12:48:37.115168+00:00",
+    "timestamp": "2026-07-26T13:05:18.656671+00:00",
     "top_k": 10,
     "threshold": 0.3
   },
@@ -8,10 +8,10 @@
     "overall": {
       "top_k": 10,
       "threshold": 0.3,
-      "total_queries": 31,
+      "total_queries": 39,
       "hit_rate": 1.0,
-      "mrr": 0.9513888888888888,
-      "section_accuracy": 0.4583333333333333,
+      "mrr": 0.9177083333333333,
+      "section_accuracy": 0.5,
       "decline_rate": 0.5,
       "filter_precision": 1.0,
       "filter_recall": 1.0,
@@ -19,19 +19,19 @@
     },
     "per_difficulty": {
       "easy": {
-        "count": 5,
+        "count": 6,
         "hit_rate": 1.0,
         "mrr": 1.0
       },
       "medium": {
-        "count": 12,
+        "count": 15,
         "hit_rate": 1.0,
-        "mrr": 1.0
+        "mrr": 0.9555555555555556
       },
       "hard": {
-        "count": 7,
+        "count": 11,
         "hit_rate": 1.0,
-        "mrr": 0.8333333333333334
+        "mrr": 0.8212121212121212
       }
     },
     "retrieval_results": [
@@ -476,6 +476,155 @@
         "retrieved_doc_ids": [
           "codecov-2021-04-01",
           "codecov-2021-04-01"
+        ],
+        "hit": true,
+        "reciprocal_rank": 1.0,
+        "section_hit": true
+      },
+      {
+        "mode": "retrieval",
+        "difficulty": "easy",
+        "query": "What went wrong with the Codecov Bash Uploader in 2021?",
+        "expected_doc_id": "codecov-2021-04-01",
+        "retrieved_doc_ids": [
+          "codecov-2021-04-01",
+          "codecov-2021-04-01",
+          "codecov-2021-04-01",
+          "codecov-2021-04-01"
+        ],
+        "hit": true,
+        "reciprocal_rank": 1.0,
+        "section_hit": false
+      },
+      {
+        "mode": "retrieval",
+        "difficulty": "hard",
+        "query": "Attackers pulled a secret out of a published container image layer and used it to tamper with a script our CI downloads.",
+        "expected_doc_id": "codecov-2021-04-01",
+        "retrieved_doc_ids": [
+          "codecov-2021-04-01",
+          "codecov-2021-04-01",
+          "codecov-2021-04-01",
+          "cloudflare-thanksgiving-2023-11-23",
+          "tanstack-npm-2026-05-11",
+          "codecov-2021-04-01",
+          "cloudflare-thanksgiving-2023-11-23",
+          "tanstack-npm-2026-05-11",
+          "tanstack-npm-2026-05-11",
+          "tanstack-npm-2026-05-11"
+        ],
+        "hit": true,
+        "reciprocal_rank": 1.0,
+        "section_hit": true
+      },
+      {
+        "mode": "retrieval",
+        "difficulty": "medium",
+        "query": "A firewall rule change made outside our normal infrastructure pipeline blocked all legitimate traffic to our UI and builds.",
+        "expected_doc_id": "circleci-waf-2025-04-04",
+        "retrieved_doc_ids": [
+          "cloudflare-route-leak-2026-01-22",
+          "cloudflare-route-leak-2026-01-22",
+          "circleci-waf-2025-04-04",
+          "circleci-waf-2025-04-04",
+          "cloudflare-bgp-2019-06-24",
+          "circleci-waf-2025-04-04"
+        ],
+        "hit": true,
+        "reciprocal_rank": 0.3333333333333333,
+        "section_hit": false
+      },
+      {
+        "mode": "retrieval",
+        "difficulty": "hard",
+        "query": "A firewall rule blocked all our traffic, and we were slow to find it because everyone assumed any change would have gone through our normal pipeline.",
+        "expected_doc_id": "circleci-waf-2025-04-04",
+        "retrieved_doc_ids": [
+          "cloudflare-route-leak-2026-01-22",
+          "cloudflare-route-leak-2026-01-22",
+          "cloudflare-thanksgiving-2023-11-23",
+          "cloudflare-route-leak-2026-01-22",
+          "circleci-waf-2025-04-04",
+          "cloudflare-bgp-2019-06-24",
+          "circleci-waf-2025-04-04"
+        ],
+        "hit": true,
+        "reciprocal_rank": 0.2,
+        "section_hit": false
+      },
+      {
+        "mode": "retrieval",
+        "difficulty": "medium",
+        "query": "A failed credential rotation cut a service off from its backing database, causing intermittent errors until we recycled the environment.",
+        "expected_doc_id": "github-auditlog-2026-04-01",
+        "retrieved_doc_ids": [
+          "github-auditlog-2026-04-01",
+          "github-auditlog-2026-04-01",
+          "github-auditlog-2026-04-01",
+          "github-auditlog-2026-04-01",
+          "cloudflare-r2-2025-03-21",
+          "cloudflare-r2-2025-03-21",
+          "cloudflare-r2-2025-03-21",
+          "cloudflare-r2-2025-03-21",
+          "cloudflare-thanksgiving-2023-11-23",
+          "gitlab-2017-01-31"
+        ],
+        "hit": true,
+        "reciprocal_rank": 1.0,
+        "section_hit": true
+      },
+      {
+        "mode": "retrieval",
+        "difficulty": "medium",
+        "query": "An automated tool deleted a live production DNS record after its data source briefly stopped returning it, and the tool assumed the record was stale.",
+        "expected_doc_id": "github-pages-dns-2026-04-13",
+        "retrieved_doc_ids": [
+          "github-pages-dns-2026-04-13",
+          "github-pages-dns-2026-04-13",
+          "github-pages-dns-2026-04-13",
+          "github-dns-2024-10-11",
+          "github-pages-dns-2026-04-13",
+          "gitlab-2017-01-31",
+          "cloudflare-r2-2025-03-21",
+          "github-dns-2024-10-11",
+          "github-dns-2024-10-11",
+          "github-dns-2024-10-11"
+        ],
+        "hit": true,
+        "reciprocal_rank": 1.0,
+        "section_hit": true
+      },
+      {
+        "mode": "retrieval",
+        "difficulty": "hard",
+        "query": "Our hosted pages started throwing 500s that slowly got worse as caches expired, and it took nearly an hour to spot the cause.",
+        "expected_doc_id": "github-pages-dns-2026-04-13",
+        "retrieved_doc_ids": [
+          "github-pages-dns-2026-04-13",
+          "roblox-2021-10-28",
+          "cloudflare-2025-11-18",
+          "github-pages-dns-2026-04-13"
+        ],
+        "hit": true,
+        "reciprocal_rank": 1.0,
+        "section_hit": true
+      },
+      {
+        "mode": "retrieval",
+        "difficulty": "hard",
+        "query": "A routing policy change accidentally advertised our internal routes to peers and providers, leaking traffic we should never have carried.",
+        "expected_doc_id": "cloudflare-route-leak-2026-01-22",
+        "retrieved_doc_ids": [
+          "cloudflare-route-leak-2026-01-22",
+          "cloudflare-route-leak-2026-01-22",
+          "cloudflare-route-leak-2026-01-22",
+          "cloudflare-bgp-2019-06-24",
+          "cloudflare-bgp-2019-06-24",
+          "cloudflare-bgp-2019-06-24",
+          "cloudflare-route-leak-2026-01-22",
+          "cloudflare-bgp-2019-06-24",
+          "cloudflare-route-leak-2026-01-22",
+          "cloudflare-bgp-2019-06-24"
         ],
         "hit": true,
         "reciprocal_rank": 1.0,
