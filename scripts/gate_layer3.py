@@ -60,22 +60,7 @@ def check_grounding(diff: dict) -> list[str]:
     return failures
 
 
-def run_gate(diff: dict) -> tuple[bool, list[str]]:
-    """Apply ADR-020. Returns (passed, messages).
 
-    Grounding short-circuits: if it fails, return immediately without
-    running any other check — the rest of the run is contaminated.
-    """
-    grounding_failures = check_grounding(diff)
-    if grounding_failures:
-        return False, grounding_failures
-
-    # Other checks appended below as we build them (hard invariants, MRR
-    # soft threshold, per-entry). Only reached if grounding passed.
-    messages: list[str] = []
-
-    passed = len(messages) == 0
-    return passed, messages
 
 
 

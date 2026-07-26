@@ -90,7 +90,7 @@ def test_t0_chroma_where_multi_key_wraps_in_and():
         {"company": "Cloudflare", "root_cause_category": "configuration-error"}
 
     )
-    assert "$and in result"
+    assert "$and" in result
     assert {"company": "Cloudflare"} in result["$and"]
     assert {"root_cause_category": "configuration-error"} in result["$and"]
     assert len(result["$and"]) == 2
