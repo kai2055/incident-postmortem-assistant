@@ -216,19 +216,11 @@ def print_report(results: list[dict]) -> None:
               f"cands {r['candidate_count']}  iters {r['iterations']}  "
               f"noise {r['noise_count']}  restate {r['restatements']}")
 
+def run_suite(suite: list[dict], graph, out_path: Path, suite_path: Path) -> list[dict]:
+    """Run every description through the graph, return ordered per-entry results.
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--suite", type=Path, default=SUITE_PATH)
-    parser.add_argument("--out", type=Path, default=OUT_PATH)
-    parser.add_argument("--only", type=str, default=None)
-    args = parser.parse_args()
-
-    suite = json.load(open(args.suite))
-    if args.only:
-        suite = [q for q in suite if q["id"] == args.only]
-
-    graph = build_diagnostic_graph()
+    Saves after each entry so an interrupt costs one run, not the whole suite.
+    """
     results: dict[str, dict] = {}
     start = time.time()
 
@@ -244,7 +236,7 @@ def main():
         scored["seconds"] = round(elapsed, 1)
         results[q["id"]] = scored
 
-        save(args.out, results, args.suite, time.time() - start)
+        save(out_path, results, suite_path, time.time() - start)
 
         top = scored["candidates"][0]["cause"] if scored["candidates"] else "(declined)"
         print(f"    {elapsed:.0f}s  {scored['candidate_count']} candidates  "
@@ -254,10 +246,29 @@ def main():
             print(f"    expected: {scored['primary_root_cause']}")
         print()
 
-    ordered = [results[k] for k in sorted(results)]
+    return [results[k] for k in sorted(results)]
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--suite", type=Path, default=SUITE_PATH)
+    parser.add_argument("--out", type=Path, default=OUT_PATH)
+    parser.add_argument("--only", type=str, default=None)
+    args = parser.parse_args()
+
+    suite = json.load(open(args.suite))
+    if args.only:
+        suite = [q for q in suite if q["id"] == args.only]
+
+    graph = build_diagnostic_graph()
+    start = time.time()
+
+    ordered = run_suite(suite, graph, args.out, args.suite)
+
     print_report(ordered)
     print(f"\nSaved to {args.out}")
     print(f"Total: {(time.time() - start) / 60:.1f} minutes")
+
 
 
 if __name__ == "__main__":
