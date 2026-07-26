@@ -48,7 +48,8 @@ def main():
     parser.add_argument("--depth", type=int, default=DEPTH)
     args = parser.parse_args()
 
-    queries = json.load(open(args.suite))
+    with open(args.suite) as f:
+        queries = json.load(f)
 
     # --- schema detection, printed so it can be checked ---
     sample = queries[0]

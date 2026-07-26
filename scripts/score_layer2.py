@@ -299,7 +299,8 @@ def main():
     parser.add_argument("--only", type=str, default=None)
     args = parser.parse_args()
 
-    suite = json.load(open(args.suite))
+    with open(args.suite) as f:
+        suite = json.load(f)
     if args.only:
         suite = [q for q in suite if q["id"] == args.only]
 

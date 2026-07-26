@@ -33,7 +33,8 @@ def load_existing(path: Path) -> dict:
     """Return {id: entry} for whatever has already been generated."""
     if not path.exists():
         return {}
-    data = json.load(open(path))
+    with open(path) as f:
+        data = json.load(f)
     return {e["id"]: e for e in data.get("entries", [])}
 
 
@@ -61,7 +62,8 @@ def main():
                         help="regenerate a single id, e.g. L2-003")
     args = parser.parse_args()
 
-    suite = json.load(open(args.suite))
+    with open(args.suite) as f:
+        suite = json.load(f)
     entries = load_existing(args.out)
 
     todo = []

@@ -60,8 +60,10 @@ def main():
                         help="how deep to search when looking for the target")
     args = parser.parse_args()
 
-    suite = {q["id"]: q for q in json.load(open(args.suite))}
-    frozen = json.load(open(args.symptoms))["entries"]
+    with open(args.suite) as f:
+        suite = {q["id"]: q for q in json.load(f)}
+    with open(args.symptoms) as f:
+        frozen = json.load(f)["entries"]
 
     print(f"threshold : {RELEVANCE_THRESHOLD}")
     print(f"top_k     : {DEFAULT_TOP_K}  (what the agent actually sees)")

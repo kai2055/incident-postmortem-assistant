@@ -23,7 +23,8 @@ LAYER2_METRICS = [
 
 def load_layer1(path: Path) -> dict:
     """Return Layer 1 aggregate metrics as a flat {metric: value} dict."""
-    data = json.load(open(path))
+    with open(path) as f:
+        data = json.load(f)
     return data["results"]["overall"]
 
 
@@ -33,7 +34,8 @@ def load_layer2(path: Path) -> tuple[dict, dict]:
     per-entry maps id -> {top1_correct, any_hit}, preserving None
     (a declined/unscorable entry is None, NOT False).
     """
-    data = json.load(open(path))
+    with open(path) as f:
+        data = json.load(f)
     overall = data["overall"]
     per_entry = {
         e["id"]: {"top1_correct": e["top1_correct"], "any_hit": e["any_hit"]}

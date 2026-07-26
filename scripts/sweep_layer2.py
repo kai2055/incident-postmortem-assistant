@@ -95,8 +95,10 @@ def main():
     parser.add_argument("--out", type=Path, default=OUT_PATH)
     args = parser.parse_args()
 
-    suite = {q["id"]: q for q in json.load(open(args.suite))}
-    frozen = json.load(open(args.symptoms))["entries"]
+    with open(args.suite) as f:
+        suite = {q["id"]: q for q in json.load(f)}
+    with open(args.symptoms) as f:
+        frozen = json.load(f)["entries"]
 
     print(f"top_k: {DEFAULT_TOP_K}   thresholds: {len(THRESHOLDS)}\n")
 

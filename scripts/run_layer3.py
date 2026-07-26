@@ -46,8 +46,10 @@ def run_layer1() -> dict:
 def run_layer2() -> list[dict]:
     print("\nRunning Layer 2 eval (frozen symptoms)...")
     import json
-    suite = {q["id"]: q for q in json.load(open(LAYER2_SUITE))}
-    frozen = json.load(open(LAYER2_SYMPTOMS))["entries"]
+    with open(LAYER2_SUITE) as f:
+        suite = {q["id"]: q for q in json.load(f)}
+    with open(LAYER2_SYMPTOMS) as f:
+        frozen = json.load(f)["entries"]
     graph = build_diagnostic_graph_from_symptoms()
     start = time.time()
     ordered = run_suite_frozen(frozen, suite, graph, LAYER2_OUT, LAYER2_SUITE)
