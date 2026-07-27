@@ -10,9 +10,12 @@ embedding and vectorstore layers
 from pathlib import Path
 
 import ollama
+import os
 
 from src.chunking import Chunk
 from src.vectorstore import CHROMA_COLLECTION, search, store_chunks
+from dotenv import load_dotenv
+load_dotenv()
 
 # Configuration
 
@@ -20,29 +23,55 @@ EMBED_MODEL = "nomic-embed-text"
 VECTOR_DIM = 768
 RELEVANCE_THRESHOLD = 0.30
 DEFAULT_TOP_K = 10
+EMBED_PROVIDER = os.getenv("EMBED_PROVIDER", "ollama")
+GEMINI_EMBED_MODEL = "gemini-embedding-001"
 
 
 
 # Embedding
 
-def embed_text(text: str, prefix: str,) -> list[float]:
+def embed_text(text: str, prefix: str) -> list[float]:
     """
-    Embed a single text using Ollama with explicit prefix.
+    Embed a single text. Provider chosen by EMBED_PROVIDER env var:
+        ollama  - local inference, nomic-embed-text (default, dev path)
+        gemini  - hosted inference, gemini-embedding-001 (deploy path)
 
-    Args:
-        text: Text to embed
-        prefix: Prefix to prepend to text (search_document: or search_query)
-
-    Returns:
-        List of floats (vector)
-    
+    Both produce 768-dim vectors. NOTE: they are DIFFERENT models, so the
+    vector store must be built with the same provider that queries it.
     """
-    data = ollama.embeddings(
-        model=EMBED_MODEL,
-        prompt = f"{prefix}{text}",
+    if EMBED_PROVIDER == "gemini":
+        return _embed_gemini(text, prefix)
+    return _embed_ollama(text, prefix)
 
+
+def _embed_ollama(text: str, prefix: str) -> list[float]:
+    data = ollama.embeddings(model=EMBED_MODEL, prompt=f"{prefix}{text}")
+    return data["embedding"]
+
+
+def _embed_gemini(text: str, prefix: str) -> list[float]:
+    from google import genai
+    from google.genai import types
+
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "EMBED_PROVIDER=gemini but GEMINI_API_KEY is not set. Add it to .env"
+        )
+
+    client = genai.Client(api_key=api_key)
+    # Map your prefix convention to Gemini's task_type.
+    task_type = "RETRIEVAL_QUERY" if prefix.startswith("search_query") else "RETRIEVAL_DOCUMENT"
+
+    result = client.models.embed_content(
+        model=GEMINI_EMBED_MODEL,
+        contents=text,
+        config=types.EmbedContentConfig(
+            task_type=task_type,
+            output_dimensionality=768,
+        ),
     )
-    return  data["embedding"]
+    return result.embeddings[0].values
 
 
 
