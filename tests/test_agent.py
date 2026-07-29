@@ -452,7 +452,7 @@ def test_diagnose_no_evidence_skips_model():
     with patch("src.agent.call_llm") as mock_llm:
         result = diagnose_node(state)
 
-    assert result == {"diagnosis": []}
+    assert result == {"diagnosis": [], "reasoning": ""}
     mock_llm.assert_not_called()
 
 

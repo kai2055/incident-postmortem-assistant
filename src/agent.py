@@ -1,6 +1,7 @@
 import operator
 import re
 from typing import Annotated, TypedDict
+import os
 
 from langgraph.graph import END, START, StateGraph
 
@@ -14,6 +15,8 @@ from src.generation import call_llm
 # 0.30 discards everything. See ADR-017 for the sweep behind 0.36.
 LAYER2_THRESHOLD = 0.36
 
+SHOW_REASONING = os.getenv("SHOW_REASONING", "false").lower() == "true"
+
 
 # ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -26,6 +29,11 @@ def strip_think(text: str) -> str:
     space made it silently never fire, letting reasoning text through as data.
     """
     return re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
+
+def extract_think(text: str) -> str:
+    """Pull out the <think>...</think> reasoning block, if present. Empty if none."""
+    match = re.search(r"<think>(.*?)</think>", text, flags=re.DOTALL)
+    return match.group(1).strip() if match else ""
 
 
 def merge_retrieved(old: dict, new: dict) -> dict:
@@ -47,6 +55,7 @@ class DiagnosticState(TypedDict):
     diagnosis: list[dict]
     sufficient: bool
     gap_reason: str
+    reasoning: str 
 
 
 def create_state(original_query: str) -> DiagnosticState:
@@ -59,6 +68,7 @@ def create_state(original_query: str) -> DiagnosticState:
         "diagnosis": [],
         "sufficient": False,
         "gap_reason": "",
+        "reasoning": ""
     }
 
 
@@ -255,7 +265,7 @@ def diagnose_node(state: DiagnosticState) -> dict:
 
     # Early exit: no real evidence -> do not ask the model to hallucinate
     if not valid_ids:
-        return {"diagnosis": []}
+        return {"diagnosis": [], "reasoning": ""}
 
     evidence_lines: list[str] = []
     for symptom, hits in retrieved.items():
@@ -306,6 +316,7 @@ def diagnose_node(state: DiagnosticState) -> dict:
 
         """
     raw_response = call_llm(prompt)
+    reasoning = extract_think(raw_response) if SHOW_REASONING else ""
     cleaned = strip_think(raw_response)
 
     diagnosis: list[dict] = []
@@ -356,7 +367,9 @@ def diagnose_node(state: DiagnosticState) -> dict:
         d["evidence"] = ", ".join(sorted(real))  # keep only real citations
         grounded.append(d)
 
-    return {"diagnosis": grounded}
+    return {"diagnosis": grounded, "reasoning": reasoning}
+
+
 
 
 # ── Graph ────────────────────────────────────────────────────────────────
