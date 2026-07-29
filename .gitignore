@@ -20,3 +20,6 @@ Thumbs.db
 
 data/chromadb/
 data/eval/current_*.json
+data/eval/stability/layer*_run_*.json
+data/eval/stability/_layer2_tmp.json
+
