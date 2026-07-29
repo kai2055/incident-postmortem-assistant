@@ -1,0 +1,56 @@
+{
+  "generated_at": "2026-07-29T13:26:11.412939+00:00",
+  "layer": 1,
+  "runs": 10,
+  "summary": {
+    "hit_rate": {
+      "mean": 1.0,
+      "min": 1.0,
+      "max": 1.0,
+      "stdev": 0.0,
+      "n": 10
+    },
+    "mrr": {
+      "mean": 0.9177,
+      "min": 0.9177,
+      "max": 0.9177,
+      "stdev": 0.0,
+      "n": 10
+    },
+    "section_accuracy": {
+      "mean": 0.5,
+      "min": 0.5,
+      "max": 0.5,
+      "stdev": 0.0,
+      "n": 10
+    },
+    "decline_rate": {
+      "mean": 0.5,
+      "min": 0.5,
+      "max": 0.5,
+      "stdev": 0.0,
+      "n": 10
+    },
+    "filter_precision": {
+      "mean": 1.0,
+      "min": 1.0,
+      "max": 1.0,
+      "stdev": 0.0,
+      "n": 10
+    },
+    "filter_recall": {
+      "mean": 1.0,
+      "min": 1.0,
+      "max": 1.0,
+      "stdev": 0.0,
+      "n": 10
+    },
+    "filter_exact_match_rate": {
+      "mean": 1.0,
+      "min": 1.0,
+      "max": 1.0,
+      "stdev": 0.0,
+      "n": 10
+    }
+  }
+}
