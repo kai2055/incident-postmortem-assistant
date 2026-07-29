@@ -30,8 +30,8 @@ def run_layer1() -> dict:
 
 
 def run_layer2() -> dict:
+    from scripts.score_layer2 import aggregate, run_suite_frozen
     from src.agent import build_diagnostic_graph_from_symptoms
-    from scripts.score_layer2 import run_suite_frozen, aggregate
     with open("data/eval/layer2_suite.json") as f:
         suite = {q["id"]: q for q in json.load(f)}
     with open("data/eval/layer2_symptoms.json") as f:
