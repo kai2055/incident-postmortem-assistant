@@ -7,14 +7,15 @@ orchestrators (index_chunks, retrieve) that coordinate between
 embedding and vectorstore layers
 """
 
+import os
 from pathlib import Path
 
 import ollama
-import os
+from dotenv import load_dotenv
 
 from src.chunking import Chunk
 from src.vectorstore import CHROMA_COLLECTION, search, store_chunks
-from dotenv import load_dotenv
+
 load_dotenv()
 
 # Configuration
