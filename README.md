@@ -1,142 +1,173 @@
 # Incident Post-Mortem Retrieval Assistant
 
-A three-layer ML reliability pipeline that retrieves, diagnoses, and evaluates
-engineering incident post-mortems to help engineers act faster during a live outage.
+**When a system goes down, an engineer can describe the failure in plain English and get back the most relevant past incidents — their root causes, how they were fixed, and how confident the system is that they match.**
 
-When a system goes down, the question is always the same: *has this happened
-before, what was the root cause, how was it fixed?* Post-mortems hold those
-answers but are buried in wikis and folders. This system makes them queryable in
-plain language — institutional memory, made searchable.
+Post-mortems hold the answers to "has this happened before?" — but they're buried in wikis and folders, unsearchable in the moment you need them. This project makes that institutional memory queryable, and — more importantly — **measures whether the answers can be trusted.**
 
-Retrieving the wrong past incident during an outage sends an engineer chasing the
-wrong root cause, so **the evaluation framework is the core of this project, not
-an afterthought.** Every retrieval and generation decision is measured, tuned
-against documented numbers, and gated in CI/CD.
+Because retrieving the *wrong* past incident during a live outage sends an engineer chasing the wrong root cause, the evaluation framework is the core of this project, not an afterthought. Every retrieval and generation decision is measured against a documented ground-truth suite, tuned on evidence, and gated in CI so quality can't silently regress.
+
+That last part is the point: **this is a system built to keep working, not just to work once.**
 
 ---
 
-## Status
+## Demo
 
-| Layer | Description | State |
-|-------|-------------|-------|
-| **Layer 1 — RAG Pipeline** | ingest → chunk → embed → retrieve → generate | **Complete** |
-| **Layer 2 — Diagnostic Agent** | multi-step symptom decomposition + dynamic retrieval → ranked differential diagnosis | **Early implementation** |
-| **Layer 3 — Evaluation Agent** | auto-generated test queries + regression gating in CI/CD | **Designed, not yet built** |
+*Two queries, opposite behavior, the same interface. This contrast is the whole thesis.*
+
+**A real incident → a grounded diagnosis.** The system decomposes the description into symptoms, retrieves past incidents for each, separates root cause from downstream effect, and ranks the causes with confidence — every citation traceable to a real retrieved incident.
+
+
+![Grounded diagnosis](docs/screenshots/diagnosis.png)
+
+**Off-corpus junk → an honest refusal.** Given something it has no evidence for, the system declines rather than inventing a plausible-sounding answer. No fabricated incident, no wasted model call.
+
+
+![Honest decline](docs/screenshots/decline.png)
+
+**🎥 Walkthrough video**
+
+<!-- Replace this block with the embedded video / thumbnail link once recorded.
+     A common pattern: a clickable thumbnail linking to the video —
+     [![Watch the walkthrough](docs/screenshots/video-thumbnail.png)](VIDEO_URL) -->
+
+_Coming soon._
 
 ---
 
-## Architecture
+## How it works
 
-**Layer 1 — RAG Pipeline (complete).**
-Frontmatter ingestion, section-aware chunking with paragraph fallback, embedding,
-a ChromaDB vectorstore layer (cosine distance), distance-threshold retrieval, and
-grounded generation with numbered citations, a deterministic source list, and a
-layered decline (both a retrieval-layer distance threshold and a generation-layer
-grounded prompt — neither alone is sufficient).
+The system is three layers. Each answers a different question.
 
-**Layer 2 — Diagnostic Agent (early implementation).**
-A LangGraph agent with four nodes — Decompose, Retrieve, Assess, Diagnose —
-sharing a `DiagnosticState`. It accepts an incident description, decomposes it into
-symptoms, issues retrievals per symptom (calling Layer 1 as a tool), cross-references
-findings to distinguish root cause from downstream effect, and produces a ranked
-differential diagnosis with evidence and confidence signals. Retrieval steps are
-dynamic, not fixed: a hybrid termination condition stops when every symptom has
-evidence *or* a hard iteration cap is hit, and gap reasons direct the next
-retrieval rather than blindly retrying.
+### Layer 1 — Retrieval pipeline *(does it find the right incident?)*
 
-**Layer 3 — Evaluation Agent (designed).**
-Triggers on every corpus change and CI/CD push, auto-generates synthetic test
-queries from new documents, validates retrieval, runs regression checks against the
-existing suite, gates deployment on metric thresholds, and emits a pass/fail report
-with metric deltas.
+The classic RAG path: ingest post-mortems, split them into section-aware chunks, turn each into an embedding (a vector capturing its meaning), store them in ChromaDB, and retrieve the closest matches to a query. Generation is grounded — the model answers *only* from retrieved sources, with numbered citations, and declines when nothing is close enough. The decline is layered: a distance threshold at the retrieval step **and** a grounded prompt at the generation step, because neither alone is enough.
+
+### Layer 2 — Diagnostic agent *(what's actually the root cause?)*
+
+A single retrieval can't tell cause from effect. This layer is a **LangGraph agent** with four nodes sharing visible state:
+
+- **Decompose** — break the incident description into distinct symptoms
+- **Retrieve** — pull past incidents for each symptom (calls Layer 1 as a tool)
+- **Assess** — cross-reference the evidence and judge whether it's sufficient
+- **Diagnose** — produce a ranked differential diagnosis with confidence
+
+Retrieval is dynamic, not fixed: the agent loops when a symptom has no evidence and stops when every symptom is covered *or* a hard iteration cap (3) is reached. A grounding filter strips any citation the model invented — a candidate cause survives only if it traces to an incident actually retrieved.
+
+### Layer 3 — Regression gate *(is it still as good as it was?)*
+
+This is the layer most portfolio RAG projects don't have. On every push, CI re-indexes if the corpus changed, re-runs the full metric suite, and diffs the results against a committed baseline. A quality drop **fails the build.** The gate policy is deliberate — *gate by consequence, not by number:*
+
+- **Hard invariants** (block on any drop): grounding violations, hit rate, filter precision/recall, Layer 2 decline behavior
+- **Soft threshold**: MRR, floored just below baseline to absorb known run-to-run noise
+- **Report-only**: small discrete metrics where noise and signal are the same size — checked per-entry, not against an aggregate floor
+
+That's the tagline in code: a merge is blocked the moment retrieval quality regresses.
+
+---
+
+## Evaluation
+
+A **39-query ground-truth suite** (`data/eval/query_suite.json`) across retrieval, decline, and filter modes. A hit is document-level primary, section-level secondary.
+
+**Retrieval quality** (Layer 1, distance threshold `0.30`):
+
+| Metric | Value | What it means |
+|--------|-------|---------------|
+| Hit rate | **1.00** | the correct incident is retrieved every time |
+| MRR | **0.92** | and it's almost always ranked first |
+| Section accuracy | 0.50 | right document, right section about half the time |
+| Filter precision / recall / exact-match | **1.00** | metadata filters ("minor severity", "config errors at Cloudflare") return exactly the right set |
+
+**Retrieval holds up as queries get harder** — the correct incident is never lost, it just ranks lower against distractors:
+
+| Difficulty | Count | Hit rate | MRR |
+|------------|-------|----------|-----|
+| Easy (direct) | 6 | 1.00 | 1.00 |
+| Medium (symptom-phrased) | 15 | 1.00 | 0.96 |
+| Hard (distractors, discrimination) | 11 | 1.00 | 0.82 |
+
+**Why the 0.30 threshold?** It was chosen from a sweep, not guessed. 0.30 is the lowest threshold where every real query still retrieves its incident, while keeping the strongest rejection of off-corpus junk:
+
+| Threshold | Hit rate | Decline rate | |
+|-----------|----------|--------------|---|
+| 0.20 | 0.26 | 1.00 | too strict — refuses almost everything |
+| 0.25 | 0.65 | 0.80 | still missing real incidents |
+| **0.30** | **1.00** | **0.60** | **chosen — full retrieval, strongest junk-rejection** |
+| 0.35 | 1.00 | 0.20 | starts accepting queries it should refuse |
+| 0.50 | 1.00 | 0.00 | never declines anything |
+
+*(Sweep ran on the earlier 23-query suite, where MRR reads 0.949 at the chosen threshold; the 0.92 above is the same behavior measured on the current, larger 39-query suite.)*
+
+**Diagnostic agent** (Layer 2, threshold `0.36`, 15-entry suite): grounding violations **0**, top-1 accuracy **0.667** (on scoreable single-cause entries), correct decline on both true no-match probes. The fabricated-citation filter holds across every entry — no invented incident survives into a diagnosis.
+
+---
+
+## Known limitations
+
+Named on purpose. Knowing where a reliability system fails is part of the work.
+
+- **It matches on vocabulary, not mechanism.** Two Layer 1 decline probes leaked because they share *words* with real incidents: a DDoS query pulled Cloudflare outages (shared CDN/edge vocabulary), and an SSL-certificate-expiry query pulled a GitHub auth incident. The same pattern shows in Layer 2's noise rate of 0.47 — nearly half its candidate causes are off-target, occasionally at high confidence (a Cloudflare WAF incident once ranked as Roblox). Documented as a known failure pattern, not silently patched.
+- **The agent over-declines on terse cause-effect symptoms.** When a symptom is phrased only as an effect ("nothing can authenticate", "crashed / blue-screened"), Layer 2 sometimes retrieves nothing and declines even though a matching incident exists. It needs symptom text with enough substance to embed against.
+- **Section accuracy is 0.50.** The system reliably finds the right *document* but lands on the most relevant *section* only about half the time — fine for surfacing an incident, weaker for pinpointing the exact passage.
+- **Deferred filter-recall bug.** Metadata-filter queries currently cap results at `top_k`, which is harmless at 20 documents (no filter matches more) but will under-recall as the corpus grows. Tracked in the ADRs, deliberately deferred.
+
+---
+
+## Corpus
+
+**First-party post-mortems only** — no reconstructed or fictional incidents. Every document traces to its primary source, is verified against it, and is enforced to a 5-section schema (Summary, Timeline, Root Cause, Resolution, Prevention). The ledger (`data/incidents.csv`) is generated from the files themselves, never hand-maintained.
+
+**Current corpus: 20 incidents → 107 chunks**, drawn from public post-mortems by Cloudflare, GitHub, GitLab, AWS, Roblox, Sentry, CrowdStrike, CircleCI, Codecov, and TanStack.
 
 ---
 
 ## Stack
 
 - **Language:** Python 3.12
-- **Agent framework:** LangGraph — chosen over plain Python, LangChain agents,
-  LlamaIndex, and CrewAI primarily for **inspectability**: every node writes to
-  visible state, which is what makes stage-by-stage evaluation in Layer 3 possible.
+- **Agent framework:** LangGraph — chosen over LangChain agents and LlamaIndex for **inspectability**. Every node writes to visible state, which is exactly what makes the Layer 3 stage-by-stage evaluation possible.
+- **Models:** `qwen3:8b` (generation) and `nomic-embed-text` (embeddings), run locally via **Ollama** (CPU-only). Generation can be routed through **OpenRouter** — the same `qwen3-8b` weights, hosted — via an `LLM_PROVIDER` switch, giving far faster inference for evaluation runs and the live demo.
 - **Vector store:** ChromaDB (cosine distance)
-- **Models (all local via Ollama):** `nomic-embed-text` (embeddings),
-  `qwen3:8b` (generation), `deepseek-r1:8b` (agent layer). Ollama runs CPU-only.
-- **Serving:** FastAPI + Docker → GCP Cloud Run
-- **CI/CD:** GitHub Actions with metric-threshold deployment gates
-- **Evaluation:** RAGAS + custom metric functions
-- **Dev environment:** WSL2 / Ubuntu 24.04 (matched to the Cloud Run target)
+- **Interface:** Streamlit (local demo UI)
+- **CI/CD:** GitHub Actions with metric-threshold regression gating
+- **Dev environment:** WSL2 / Ubuntu 24.04
 
 ---
 
-## Corpus
+## Run it locally
 
-**First-party post-mortems only** — no reconstructed or fictional incidents. Every
-document is verified against its primary source and enforced to a 5-section schema
-(Summary, Timeline, Root Cause, Resolution, Prevention).
+```bash
+# 1. Pull the models
+ollama pull nomic-embed-text && ollama pull qwen3:8b
 
-Current corpus: **15 incidents → 82 chunks**, spanning 7 of 8 root-cause categories
-(`agent-ai` intentionally empty — no findable first-party source).
+# 2. Install dependencies
+pip install -r requirements.txt
 
-- **By category:** configuration-error (3), human-error (3), database-storage (3),
-  cascading-failure (2), credential-auth (2), network-bgp (1), supply-chain (1)
-- **By severity:** 8 critical / 5 major / 1 minor
+# 3. Configure the provider (fast generation via OpenRouter; embeddings stay local)
+#    In .env:
+#      LLM_PROVIDER=openrouter
+#      OPENROUTER_API_KEY=...        # never commit this
 
-Ledger of committed documents: `data/incidents.csv`. Candidate incidents by
-category gap: `corpus/backlog.md`.
+# 4. Build the index
+python src/ingestion.py
 
----
+# 5. Launch the demo (Ollama must be running for embeddings)
+streamlit run app.py
+```
 
-## Evaluation
+Open `http://localhost:8501`, describe an incident, and click **Diagnose**.
 
-A **31-query ground-truth suite** (`data/eval/query_suite.json`) across five
-difficulty tiers: easy (5), medium/symptom-phrased (12), hard/discrimination with
-distractors (6), no-match calibration probes (5), and filter/set-scored (3).
+To run the evaluation suite and the fast test suite locally:
 
-**Metrics:** hit rate@k, MRR, section accuracy, decline rate, and set
-precision/recall for filter queries. A hit is document-level primary,
-section-level secondary.
-
-**Current results** (retrieval distance threshold tuned to 0.30, ADR-013):
-
-| Metric | Value |
-|--------|-------|
-| Decline rate | 0.600 |
-| Hit rate | 1.000 |
-| MRR | 0.949 |
-| Section accuracy | 0.435 |
-
-The 0.30 threshold is a strict improvement over the 1.0 placeholder — better
-decline behavior with no cost to retrieval metrics.
-
----
-
-## API
-
-| Method | Endpoint | Purpose |
-|--------|----------|---------|
-| `POST` | `/query` | Layer 1 retrieval + grounded generation |
-| `POST` | `/diagnose` | Layer 2 differential diagnosis from an incident description |
-| `GET`  | `/evaluate` | Run the evaluation suite |
-| `GET`  | `/health` | System health + last eval status |
-
----
-
-## Setup (WIP)
-
-1. Install Ollama and pull the models:
-   `ollama pull nomic-embed-text && ollama pull qwen3:8b && ollama pull deepseek-r1:8b`
-2. Install dependencies: `pip install -r requirements.txt`
-3. Run ingestion: `python src/ingestion.py`
-4. Start the API: `uvicorn src.api:app --reload`
+```bash
+python -m src.eval.runner                    # produce current metrics
+pytest -m "not slow and not integration"     # fast test suite
+```
 
 ---
 
 ## Design decisions
 
-Every significant architectural decision is recorded as an ADR with its reasoning,
-the alternatives considered, and the bugs found along the way. ADR-001 through
-ADR-013 are documented, including the threshold-tuning evidence trail and the
-deferred-MLflow decision.
+Every significant architectural decision is recorded as an ADR — the reasoning, the alternatives considered, and the bugs found along the way (stale ChromaDB masquerading as a regression, non-reproducible baselines, partially-fabricated citations slipping past a naive grounding check). The threshold-sweep evidence trail and the gate-by-consequence policy are documented there.
 
 ## License
 
