@@ -19,9 +19,7 @@ Because retrieving the wrong incident during a live outage sends an engineer cha
 ![grounding violations](https://img.shields.io/badge/grounding%20violations-0-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-lightgrey)
 
-🎥 Walkthrough *(coming)* <!-- replace with: 🎥 [Watch demo](VIDEO_URL) -->
-
----
+![Incident Post-Mortem Assistant demo](docs/img/demo.gif)
 
 ## The demo: two queries, opposite behavior, same interface
 
@@ -29,11 +27,11 @@ This contrast **is** the thesis.
 
 **A real incident → a grounded diagnosis.** The system decomposes the description into symptoms, retrieves past incidents for each, separates root cause from downstream effect, and ranks causes with confidence — every citation traceable to a real retrieved incident.
 
-<!-- ![Grounded diagnosis](docs/img/grounded-diagnosis.png) -->
+![grounded diagnosis with cited incidents](docs/img/grounded-diagnosis.png)
 
 **Off-corpus junk → an honest refusal.** Given something it has no evidence for, it declines rather than inventing a plausible-sounding answer. No fabricated incident, no wasted model call.
 
-<!-- ![Honest decline](docs/img/honest-decline.png) -->
+![honest decline on off-corpus query](docs/img/honest-decline.png)
 
 ---
 
